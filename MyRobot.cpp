@@ -2,37 +2,28 @@
 
 class RobotDemo : public SimpleRobot
 {
-	RobotDrive myRobot;
-	Joystick stick;
+	RobotDrive robotDrive;
+	Joystick gamepad;
 
 public:
 	RobotDemo():
-		myRobot(1, 2),
-		stick(1)
+		robotDrive(1, 2, 3, 4),
+		gamepad(1)
 	{
-		myRobot.SetExpiration(0.1);
+		robotDrive.SetExpiration(0.1);
 	}
-	
 	void Autonomous()
 	{
-		myRobot.SetSafetyEnabled(false);
-		myRobot.Drive(-0.5, 0.0);
-		Wait(2.0);
-		myRobot.Drive(0.0, 0.0);
+		robotDrive.SetSafetyEnabled(false);
 	}
-
 	void OperatorControl()
 	{
-		myRobot.SetSafetyEnabled(true);
+		robotDrive.SetSafetyEnabled(true);
 		while (IsOperatorControl())
 		{
-			myRobot.ArcadeDrive(stick);
+			robotDrive.TankDrive(gamepad.GetY(), gamepad.GetTwist());
 			Wait(0.005);
 		}
-	}
-
-	void Test() {
-
 	}
 };
 
