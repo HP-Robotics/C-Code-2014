@@ -1,82 +1,59 @@
 #include "WPILib.h"
 
-/**
- * This is a demo program showing the use of the RobotBase class.
- * The SimpleRobot class is the base of a robot application that will automatically call your
- * Autonomous and OperatorControl methods at the right time as controlled by the switches on
- * the driver station or the field controls.
- */ 
-
 #define NULLZONE .08f
 
 class RobotDemo : public SimpleRobot
 {
-	RobotDrive BackMotors; // robot drive system
+	RobotDrive BackMotors;
 	RobotDrive FrontMotors;
-	AnalogChannel Sonic;
-	DigitalInput encA;
-	DigitalInput encB;
-	Encoder LeftWheels;
-	Joystick stick; // only joystick
+	AnalogChannel sonicSensor;
+	DigitalInput rightEncA;
+	DigitalInput rightEncB;
+	DigitalInput leftEncA;
+	DigitalInput leftEncB;
+	Encoder leftWheels;
+	Encoder rightWheels;
+	Joystick gamepad;
 
 public:
 	RobotDemo(void):
-		BackMotors(1, 3),	// these must be initialized in the same order
-		FrontMotors(2, 4),	// these must be initialized in the same order
-		Sonic(1),
-		encA(1),
-		encB(2),
-		LeftWheels(encA, encB, false, Encoder::k4X),
-		stick(1)		// as they are declared above.
+		BackMotors(1, 3),
+		FrontMotors(2, 4),
+		sonicSensor(1),
+		rightEncA(3),
+		rightEncB(4),
+		leftEncA(1),
+		leftEncB(2),
+		leftWheels(leftEncA, leftEncB, false, Encoder::k4X),
+		rightWheels(rightEncA, rightEncB, false, Encoder::k4X),
+		gamepad(1)
 	{
-		LeftWheels.Start();
+		leftWheels.Start();
+		rightWheels.Start();
 		BackMotors.SetExpiration(0.1);
 		FrontMotors.SetExpiration(0.1);
 	}
-
-	/**
-	 * Drive left & right motors for 2 seconds then stop
-	 */
 	void Autonomous(void)
 	{
-//		myRobot.SetSafetyEnabled(false);
-//		FrontWheels.SetSafetyEnabled(false);
-//		myRobot.Drive(-0.5, 0.0); 	// drive forwards half speed
-//		Wait(2.0); 				//    for 2 seconds
-//		myRobot.Drive(0.0, 0.0); 	// stop robot
+		
 	}
-
-	/**
-	 * Runs the motors with arcade steering. 
-	 */
 	void OperatorControl(void)
 	{
 		BackMotors.SetSafetyEnabled(true);
 		FrontMotors.SetSafetyEnabled(true);
 		while (IsOperatorControl())
 		{
-			float leftpower = -stick.GetRawAxis(2);
+			float leftpower = -gamepad.GetRawAxis(2);
 			if(leftpower > -NULLZONE && leftpower < NULLZONE)
 				leftpower = 0;
-			float rightpower = -stick.GetRawAxis(4);
+			float rightpower = -gamepad.GetRawAxis(4);
 			if(rightpower > -NULLZONE && rightpower < NULLZONE)
 				rightpower = 0;
-			BackMotors.TankDrive(leftpower,rightpower,0); // drive with arcade style (use right stick)
-			FrontMotors.TankDrive(leftpower,rightpower,0); // drive with arcade style (use right stick)
-			
-			printf("%d %f %d\n", LeftWheels.Get(), LeftWheels.GetRate(), Sonic.GetValue());
-			
-			Wait(0.005);				// wait for a motor update time
+			BackMotors.TankDrive(leftpower,rightpower,0);
+			FrontMotors.TankDrive(leftpower,rightpower,0);
+			printf("%d %f %d %f %d %d\n", leftWheels.Get(), leftWheels.GetRate(), rightWheels.Get(), rightWheels.GetRate(), sonicSensor.GetValue(), rightEncA.Get());
+			Wait(0.005);
 		}
 	}
-	
-	/**
-	 * Runs during test mode
-	 */
-	void Test() {
-
-	}
 };
-
 START_ROBOT_CLASS(RobotDemo);
-
