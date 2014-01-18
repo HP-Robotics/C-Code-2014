@@ -14,7 +14,6 @@ class RobotDemo : public SimpleRobot
 	Encoder leftWheels;
 	Encoder rightWheels;
 	Joystick gamepad;
-
 public:
 	RobotDemo(void):
 		BackMotors(1, 3),
