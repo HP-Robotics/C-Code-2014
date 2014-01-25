@@ -2,8 +2,6 @@
 
 #define NULLZONE .08f
 
-//Marcell is awesome
-
 class RobotDemo : public SimpleRobot
 {
 	RobotDrive BackMotors;
@@ -16,6 +14,13 @@ class RobotDemo : public SimpleRobot
 	Encoder leftWheels;
 	Encoder rightWheels;
 	Joystick gamepad;
+
+	Compressor comp;
+	Solenoid solenoidOne;
+	Solenoid solenoidTwo;
+	Solenoid solenoidThree;
+	Solenoid solenoidFour;
+
 public:
 	RobotDemo(void):
 		BackMotors(1, 3),
@@ -27,7 +32,12 @@ public:
 		leftEncB(2),
 		leftWheels(leftEncA, leftEncB, false, Encoder::k4X),
 		rightWheels(rightEncA, rightEncB, false, Encoder::k4X),
-		gamepad(1)
+		gamepad(1),
+		comp(1, 1),
+		solenoidOne(1),
+		solenoidTwo(2),
+		solenoidThree(3),
+		solenoidFour(4)
 	{
 		leftWheels.Start();
 		rightWheels.Start();
@@ -42,8 +52,9 @@ public:
 	{
 		BackMotors.SetSafetyEnabled(true);
 		FrontMotors.SetSafetyEnabled(true);
-		while (IsOperatorControl())
+		while (IsOperatorControl() && IsEnabled())
 		{
+		#if defined(SKIP_PNEUMATICS)
 			float leftpower = -gamepad.GetRawAxis(2);
 			if(leftpower > -NULLZONE && leftpower < NULLZONE)
 				leftpower = 0;
@@ -53,6 +64,41 @@ public:
 			BackMotors.TankDrive(leftpower,rightpower,0);
 			FrontMotors.TankDrive(leftpower,rightpower,0);
 			printf("%d %f %d %f %d %d\n", leftWheels.Get(), leftWheels.GetRate(), rightWheels.Get(), rightWheels.GetRate(), sonicSensor.GetValue(), rightEncA.Get());
+		#else
+			if (gamepad.GetRawButton(1))
+			{
+				solenoidOne.Set(true);
+			}
+			if (!gamepad.GetRawButton(1))
+			{
+				solenoidOne.Set(false);
+			}
+            		if (gamepad.GetRawButton(2))
+			{
+            			solenoidTwo.Set(true);
+			}
+                        if (!gamepad.GetRawButton(2))
+                        {
+                                solenoidTwo.Set(false);
+                        }
+                        if (gamepad.GetRawButton(3))
+                        {
+                                solenoidThree.Set(true);
+                        }
+                        if (!gamepad.GetRawButton(3))
+                        {
+                                solenoidThree.Set(false);
+                        }
+                        if (gamepad.GetRawButton(4))
+                        {
+                                solenoidFour.Set(true);
+                        }
+                        if (!gamepad.GetRawButton(4))
+                        {
+                                solenoidFour.Set(false);
+                        }
+
+		#endif
 			Wait(0.005);
 		}
 	}
