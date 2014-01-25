@@ -14,7 +14,6 @@ class RobotDemo : public SimpleRobot
 	Encoder leftWheels;
 	Encoder rightWheels;
 	Joystick gamepad;
-
 	Compressor comp;
 	Solenoid solenoidOne;
 	Solenoid solenoidTwo;
@@ -33,7 +32,7 @@ public:
 		leftWheels(leftEncA, leftEncB, false, Encoder::k4X),
 		rightWheels(rightEncA, rightEncB, false, Encoder::k4X),
 		gamepad(1),
-		comp(1, 1),
+		comp(7, 1),
 		solenoidOne(1),
 		solenoidTwo(2),
 		solenoidThree(3),
@@ -50,11 +49,12 @@ public:
 	}
 	void OperatorControl(void)
 	{
-		BackMotors.SetSafetyEnabled(true);
-		FrontMotors.SetSafetyEnabled(true);
+		BackMotors.SetSafetyEnabled(false);
+		FrontMotors.SetSafetyEnabled(false);
+		comp.Start();
+		
 		while (IsOperatorControl() && IsEnabled())
 		{
-		#if defined(SKIP_PNEUMATICS)
 			float leftpower = -gamepad.GetRawAxis(2);
 			if(leftpower > -NULLZONE && leftpower < NULLZONE)
 				leftpower = 0;
@@ -64,7 +64,6 @@ public:
 			BackMotors.TankDrive(leftpower,rightpower,0);
 			FrontMotors.TankDrive(leftpower,rightpower,0);
 			printf("%d %f %d %f %d %d\n", leftWheels.Get(), leftWheels.GetRate(), rightWheels.Get(), rightWheels.GetRate(), sonicSensor.GetValue(), rightEncA.Get());
-		#else
 			if (gamepad.GetRawButton(1))
 			{
 				solenoidOne.Set(true);
@@ -97,10 +96,9 @@ public:
                         {
                                 solenoidFour.Set(false);
                         }
-
-		#endif
 			Wait(0.005);
 		}
+		comp.Stop();
 	}
 };
 START_ROBOT_CLASS(RobotDemo);
