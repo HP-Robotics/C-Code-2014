@@ -12,6 +12,7 @@ class RobotDemo : public SimpleRobot
 	Encoder leftWheels;
 	Encoder rightWheels;
 	Joystick gamepad;
+
 public:
 	RobotDemo(void):
 		BackMotors(1, 3),
@@ -36,9 +37,10 @@ public:
 	}
 	void OperatorControl(void)
 	{
-		BackMotors.SetSafetyEnabled(true);
-		FrontMotors.SetSafetyEnabled(true);
-		while (IsOperatorControl())
+		BackMotors.SetSafetyEnabled(false);
+		FrontMotors.SetSafetyEnabled(false);
+		
+		while (IsOperatorControl() && IsEnabled())
 		{
 			BackMotors.TankDrive(-gamepad.GetRawAxis(2),-gamepad.GetRawAxis(5),0);
 			FrontMotors.TankDrive(-gamepad.GetRawAxis(2),-gamepad.GetRawAxis(5),0);
