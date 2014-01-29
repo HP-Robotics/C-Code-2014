@@ -1,7 +1,5 @@
 #include "WPILib.h"
 
-#define NULLZONE .08f
-
 class RobotDemo : public SimpleRobot
 {
 	RobotDrive BackMotors;
@@ -14,7 +12,6 @@ class RobotDemo : public SimpleRobot
 	Encoder leftWheels;
 	Encoder rightWheels;
 	Joystick gamepad;
-
 public:
 	RobotDemo(void):
 		BackMotors(1, 3),
@@ -35,7 +32,7 @@ public:
 	}
 	void Autonomous(void)
 	{
-		
+		//Nuthin
 	}
 	void OperatorControl(void)
 	{
@@ -43,15 +40,8 @@ public:
 		FrontMotors.SetSafetyEnabled(true);
 		while (IsOperatorControl())
 		{
-			float leftpower = -gamepad.GetRawAxis(2);
-			if(leftpower > -NULLZONE && leftpower < NULLZONE)
-				leftpower = 0;
-			float rightpower = -gamepad.GetRawAxis(4);
-			if(rightpower > -NULLZONE && rightpower < NULLZONE)
-				rightpower = 0;
-			BackMotors.TankDrive(leftpower,rightpower,0);
-			FrontMotors.TankDrive(leftpower,rightpower,0);
-			printf("%d %f %d %f %d %d\n", leftWheels.Get(), leftWheels.GetRate(), rightWheels.Get(), rightWheels.GetRate(), sonicSensor.GetValue(), rightEncA.Get());
+			BackMotors.TankDrive(-gamepad.GetRawAxis(2),-gamepad.GetRawAxis(5),0);
+			FrontMotors.TankDrive(-gamepad.GetRawAxis(2),-gamepad.GetRawAxis(5),0);
 			Wait(0.005);
 		}
 	}
