@@ -1,5 +1,4 @@
 #include "WPILib.h"
-
 class RobotDemo : public SimpleRobot
 {
 	RobotDrive BackMotors;
@@ -12,7 +11,10 @@ class RobotDemo : public SimpleRobot
 	Encoder leftWheels;
 	Encoder rightWheels;
 	Joystick gamepad;
-
+	Compressor comp;
+	Solenoid leftLoader;
+	Solenoid rightLoader;
+	Jaguar loader;
 public:
 	RobotDemo(void):
 		BackMotors(1, 3),
@@ -24,8 +26,13 @@ public:
 		leftEncB(2),
 		leftWheels(leftEncA, leftEncB, false, Encoder::k4X),
 		rightWheels(rightEncA, rightEncB, false, Encoder::k4X),
-		gamepad(1)
+		gamepad(1),
+		comp(1,1),
+		leftLoader(1,2),
+		rightLoader(3,4),
+		loader(5)
 	{
+		comp.Start();
 		leftWheels.Start();
 		rightWheels.Start();
 		BackMotors.SetExpiration(0.1);
@@ -39,9 +46,32 @@ public:
 	{
 		BackMotors.SetSafetyEnabled(false);
 		FrontMotors.SetSafetyEnabled(false);
-		
 		while (IsOperatorControl() && IsEnabled())
 		{
+			if (gamepad.GetRawButton(6)==1)
+			{
+				leftLoader.Set(true);
+				rightLoader.Set(true);
+			}
+			if (gamepad.GetRawButton(5)==1)
+			{
+				leftLoader.Set(false);
+				rightLoader.Set(false);
+			}
+			if (gamepad.GetRawButton(7)==1||gamepad.GetRawButton(8)==1)
+			{
+				loader.Set(1);
+			}
+			if (gamepad.GetRawAxis(6)==1)
+			{
+				BackMotors.TankDrive(1,1,0);
+				FrontMotors.TankDrive(1,1,0);
+			}
+			if (gamepad.GetRawAxis(6)==-1)
+			{
+				BackMotors.TankDrive(-1,-1,0);
+				FrontMotors.TankDrive(-1,-1,0);
+			}
 			BackMotors.TankDrive(-gamepad.GetRawAxis(2),-gamepad.GetRawAxis(5),0);
 			FrontMotors.TankDrive(-gamepad.GetRawAxis(2),-gamepad.GetRawAxis(5),0);
 			Wait(0.005);
