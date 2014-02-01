@@ -14,7 +14,7 @@ class RobotDemo : public SimpleRobot
 	Compressor comp;
 	Solenoid leftLoader;
 	Solenoid rightLoader;
-	Jaguar loader;
+	Jaguar shooter;
 public:
 	RobotDemo(void):
 		BackMotors(1, 3),
@@ -30,7 +30,7 @@ public:
 		comp(1,1),
 		leftLoader(1,2),
 		rightLoader(3,4),
-		loader(5)
+		shooter(5)
 	{
 		comp.Start();
 		leftWheels.Start();
@@ -60,7 +60,7 @@ public:
 			}
 			if (gamepad.GetRawButton(7)==1||gamepad.GetRawButton(8)==1)
 			{
-				loader.Set(1);
+				shooter.Set(1);
 			}
 			if (gamepad.GetRawAxis(6)==1)
 			{
