@@ -1,4 +1,6 @@
 #include "WPILib.h"
+#include "math.h"
+
 class RobotDemo : public SimpleRobot
 {
 	RobotDrive BackMotors;
@@ -15,6 +17,8 @@ class RobotDemo : public SimpleRobot
 	Solenoid leftLoader;
 	Solenoid rightLoader;
 	Jaguar shooter;
+	double leftStickSpeed;
+	double rightStickSpeed;
 public:
 	RobotDemo(void):
 		BackMotors(1, 3),
@@ -30,7 +34,9 @@ public:
 		comp(1,1),
 		leftLoader(1,2),
 		rightLoader(3,4),
-		shooter(5)
+		shooter(5),
+		leftStickSpeed(0),
+		rightStickSpeed(0)
 	{
 		comp.Start();
 		leftWheels.Start();
@@ -46,6 +52,8 @@ public:
 	{
 		BackMotors.SetSafetyEnabled(false);
 		FrontMotors.SetSafetyEnabled(false);
+		leftStickSpeed=-pow(gamepad.GetRawAxis(2), 3);
+		rightStickSpeed=-pow(gamepad.GetRawAxis(4), 3);
 		while (IsOperatorControl() && IsEnabled())
 		{
 			if (gamepad.GetRawButton(6)==1)
@@ -72,8 +80,8 @@ public:
 				BackMotors.TankDrive(-1,-1,0);
 				FrontMotors.TankDrive(-1,-1,0);
 			}
-			BackMotors.TankDrive(-gamepad.GetRawAxis(2),-gamepad.GetRawAxis(5),0);
-			FrontMotors.TankDrive(-gamepad.GetRawAxis(2),-gamepad.GetRawAxis(5),0);
+			BackMotors.TankDrive(leftStickSpeed,rightStickSpeed,0);
+			FrontMotors.TankDrive(leftStickSpeed,rightStickSpeed,0);
 			Wait(0.005);
 		}
 	}
