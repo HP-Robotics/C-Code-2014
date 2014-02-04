@@ -52,10 +52,11 @@ public:
 	{
 		BackMotors.SetSafetyEnabled(false);
 		FrontMotors.SetSafetyEnabled(false);
-		leftStickSpeed=-pow(gamepad.GetRawAxis(2), 3);
-		rightStickSpeed=-pow(gamepad.GetRawAxis(4), 3);
 		while (IsOperatorControl() && IsEnabled())
 		{
+			printf("%f, %f\n",leftStickSpeed, rightStickSpeed);
+			leftStickSpeed=-pow(gamepad.GetRawAxis(2), 3);
+			rightStickSpeed=-pow(gamepad.GetRawAxis(4), 3);
 			if (gamepad.GetRawButton(6)==1)
 			{
 				leftLoader.Set(true);
