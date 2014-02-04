@@ -1,5 +1,6 @@
 #include "WPILib.h"
 #include "math.h"
+#include <stdarg.h>
 
 class RobotDemo : public SimpleRobot
 {
@@ -50,13 +51,15 @@ public:
 	}
 	void OperatorControl(void)
 	{
+		double averageSpeed=0;
 		BackMotors.SetSafetyEnabled(false);
 		FrontMotors.SetSafetyEnabled(false);
 		while (IsOperatorControl() && IsEnabled())
 		{
-			printf("%f, %f\n",leftStickSpeed, rightStickSpeed);
 			leftStickSpeed=-pow(gamepad.GetRawAxis(2), 3);
 			rightStickSpeed=-pow(gamepad.GetRawAxis(4), 3);
+			//averageSpeed = (leftStickSpeed+rightStickSpeed)/2;
+			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
 			if (gamepad.GetRawButton(6)==1)
 			{
 				leftLoader.Set(true);
@@ -67,24 +70,37 @@ public:
 				leftLoader.Set(false);
 				rightLoader.Set(false);
 			}
-			if (gamepad.GetRawButton(7)==1||gamepad.GetRawButton(8)==1)
+			if (gamepad.GetRawButton(7)==1||gamepad.GetRawButton(8)==1) //If bringDown or fire pressed, turn the kicker motor
 			{
 				shooter.Set(1);
 			}
-			if (gamepad.GetRawAxis(6)==1)
+			if (gamepad.GetRawAxis(6)==1) //If the dpad arrow up is pushed, full power forwards
 			{
 				BackMotors.TankDrive(1,1,0);
 				FrontMotors.TankDrive(1,1,0);
 			}
-			if (gamepad.GetRawAxis(6)==-1)
+			else if (gamepad.GetRawAxis(6)==-1) //If the dpad arrow down is pushed, full power backwards
 			{
 				BackMotors.TankDrive(-1,-1,0);
 				FrontMotors.TankDrive(-1,-1,0);
 			}
-			BackMotors.TankDrive(leftStickSpeed,rightStickSpeed,0);
-			FrontMotors.TankDrive(leftStickSpeed,rightStickSpeed,0);
+			else if (fabs(averageSpeed)<= 0.8) //Regular speed control if the average of both sticks is less than .8
+			{
+				BackMotors.TankDrive(leftStickSpeed,rightStickSpeed,0);
+				FrontMotors.TankDrive(leftStickSpeed,rightStickSpeed,0);
+			}
+			else //Average speed stabilizer if average of both sticks is greater than .8
+			{
+				BackMotors.TankDrive(averageSpeed,averageSpeed,0);
+				FrontMotors.TankDrive(averageSpeed,averageSpeed,0);
+			}
 			Wait(0.005);
 		}
+	}
+	double avg (double a, double b)
+	{
+		double z = (a+b/2);
+		return z;
 	}
 };
 START_ROBOT_CLASS(RobotDemo);
