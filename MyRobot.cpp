@@ -1,6 +1,5 @@
 #include "WPILib.h"
 #include "math.h"
-#include <stdarg.h>
 
 class RobotDemo : public SimpleRobot
 {
@@ -51,6 +50,7 @@ public:
 	}
 	void OperatorControl(void)
 	{
+		int slowMode;
 		double averageSpeed=0;
 		BackMotors.SetSafetyEnabled(false);
 		FrontMotors.SetSafetyEnabled(false);
@@ -60,6 +60,16 @@ public:
 			rightStickSpeed=-pow(gamepad.GetRawAxis(4), 3);
 			//averageSpeed = (leftStickSpeed+rightStickSpeed)/2;
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
+			if (gamepad.GetRawButton(2)==1)
+			{
+				slowMode=!slowMode;
+			}
+			if (slowMode==true)
+			{
+				leftStickSpeed=leftStickSpeed*0.5;
+				rightStickSpeed=rightStickSpeed*0.5;
+				averageSpeed=averageSpeed*0.5;
+			}
 			if (gamepad.GetRawButton(6)==1)
 			{
 				leftLoader.Set(true);
