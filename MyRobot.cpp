@@ -17,6 +17,7 @@ class RobotDemo : public SimpleRobot
 	Solenoid leftLoader;
 	Solenoid rightLoader;
 	Jaguar shooter;
+	Jaguar shooter2; //chugga needs two motors
 	double leftStickSpeed;
 	double rightStickSpeed;
 public:
@@ -35,6 +36,7 @@ public:
 		leftLoader(1,2),
 		rightLoader(3,4),
 		shooter(5),
+		shooter2(6),
 		leftStickSpeed(0),
 		rightStickSpeed(0)
 	{
@@ -58,8 +60,11 @@ public:
 		{
 			leftStickSpeed=-pow(gamepad.GetRawAxis(2), 3);
 			rightStickSpeed=-pow(gamepad.GetRawAxis(4), 3);
+			printf("Axis 4: %f\n",gamepad.GetRawAxis(4));
+			printf("Axis 2: %f\n",gamepad.GetRawAxis(2));
 			//averageSpeed = (leftStickSpeed+rightStickSpeed)/2;
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
+			printf("Average: %f\n",averageSpeed);
 			if (gamepad.GetRawButton(2)==1)
 			{
 				slowMode=!slowMode;
@@ -82,7 +87,8 @@ public:
 			}
 			if (gamepad.GetRawButton(7)==1||gamepad.GetRawButton(8)==1) //If bringDown or fire pressed, turn the kicker motor
 			{
-				shooter.Set(1);
+				shooter.Set(gamepad.GetRawAxis(2));
+				shooter2.Set(gamepad.GetRawAxis(2));
 			}
 			if (gamepad.GetRawAxis(6)==1) //If the dpad arrow up is pushed, full power forwards
 			{
@@ -109,8 +115,7 @@ public:
 	}
 	double avg (double a, double b)
 	{
-		double z = (a+b/2);
-		return z;
+		return (a+b)/2; //MISHA!!!! YOUR PARENTHESES WERE WRONG!! YOU WERE DOING a+(b/2)!! WHICH CAUSED A LOT OF PAIN!!
 	}
 };
 START_ROBOT_CLASS(RobotDemo);
