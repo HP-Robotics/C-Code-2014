@@ -1,6 +1,9 @@
 #include "WPILib.h"
 #include "math.h"
 
+
+#define SHOOTERSPEED .5f
+
 class RobotDemo : public SimpleRobot
 {
 	RobotDrive BackMotors;
@@ -17,8 +20,9 @@ class RobotDemo : public SimpleRobot
 	Solenoid leftLoader;
 	Solenoid rightLoader;
 	Jaguar shooter;
-	Jaguar shooter2; //chugga needs two motors
+	DigitalInput shooterLimit;
 	bool isShooting;
+	bool isShootingManually;
 	DigitalInput pi;
 	Timer timer;
 	double leftStickSpeed;
@@ -40,12 +44,9 @@ public:
 		leftLoader(1,2),
 		rightLoader(3,4),
 		shooter(5),
-		shooter2(6),
-		isShooting(0),
-		pi(14),
-		timer(),
-		leftStickSpeed(0),
-		rightStickSpeed(0)
+		shooterLimit(5),
+		pi(14)
+		
 	{
 		comp.Start();
 		leftWheels.Start();
@@ -55,18 +56,30 @@ public:
 	}
 	
 	
-	bool ShooterUpdate()
+	void ShooterUpdate()
 	{
-		///if(isShooting){
-			///runmotor();
-			///isShooting = limitswitchdepressed;
-		///}
-		//if(!isShooting){
-			///if(limitswitch depressed)
-			///	stopmotor
-			///else
-			/// runmotor
-		///}
+		if(isShootingManually)
+		{
+			if(gamepad.GetRawButton(7) || gamepad.GetRawButton(8))
+			{
+				shooter.Set(SHOOTERSPEED);
+			}
+			else
+				shooter.Set(0);
+			
+		}
+		else{
+			if(isShooting){
+				shooter.Set(SHOOTERSPEED);
+				isShooting = !shooterLimit.Get();
+			}
+			if(!isShooting){
+				if(shooterLimit.Get())
+					shooter.Set(0);
+				else
+					shooter.Set(SHOOTERSPEED);
+			}
+		}
 	}
 	
 	
@@ -83,7 +96,7 @@ public:
 	
 	void AutonomousMove()
 	{
-		leftEncA.
+		
 		FrontMotors.TankDrive(1, 1, 0);
 		BackMotors.TankDrive(1, 1, 0);
 	}
@@ -111,71 +124,107 @@ public:
 	}
 	void OperatorControl(void)
 	{
-		int slowMode;
-		double averageSpeed=0;
+		
+		
+		double averageSpeed = 0;
 		BackMotors.SetSafetyEnabled(false);
 		FrontMotors.SetSafetyEnabled(false);
+		bool wasManualButtonPressed = false;
+		bool wasSlowButtonPressed = false;
+		int slowMode;
+		
 		while (IsOperatorControl() && IsEnabled())
 		{
-			leftStickSpeed=-pow(gamepad.GetRawAxis(2), 3);
-			rightStickSpeed=-pow(gamepad.GetRawAxis(4), 3);
-			printf("Axis 4: %f\n",gamepad.GetRawAxis(4));
-			printf("Axis 2: %f\n",gamepad.GetRawAxis(2));
-			//averageSpeed = (leftStickSpeed+rightStickSpeed)/2;
+			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 3);
+			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 3);
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
-			printf("Average: %f\n",averageSpeed);
-			if (gamepad.GetRawButton(2)==1)
+			
+			//SLOW MODE LOGIC
+			if (gamepad.GetRawButton(2))
 			{
-				slowMode=!slowMode;
+				if(!wasSlowButtonPressed){
+					slowMode=!slowMode;
+				}
+				wasSlowButtonPressed = true;
 			}
+			else
+				wasSlowButtonPressed = false;
 			if (slowMode==true)
 			{
 				leftStickSpeed=leftStickSpeed*0.5;
 				rightStickSpeed=rightStickSpeed*0.5;
 				averageSpeed=averageSpeed*0.5;
 			}
-			if (gamepad.GetRawButton(6)==1)
+			
+			//LIFTING
+			
+			if (gamepad.GetRawButton(6))
 			{
 				leftLoader.Set(true);
 				rightLoader.Set(true);
 			}
-			if (gamepad.GetRawButton(5)==1)
+			if (gamepad.GetRawButton(5))
 			{
 				leftLoader.Set(false);
 				rightLoader.Set(false);
 			}
-			if (gamepad.GetRawButton(7)==1||gamepad.GetRawButton(8)==1) //If bringDown or fire pressed, turn the kicker motor
+			
+			
+			//SHOOTING - TODO: Separate Safe and Override
+			
+			if (gamepad.GetRawButton(7) || gamepad.GetRawButton(8)) //If bringDown or fire pressed, turn the kicker motor
 			{
-				shooter.Set(gamepad.GetRawAxis(2));
-				shooter2.Set(gamepad.GetRawAxis(2));
+				ShootOverride();
 			}
-			if (gamepad.GetRawAxis(6)==1) //If the dpad arrow up is pushed, full power forwards
+			
+			
+			//toggle manual mode
+			if (gamepad.GetRawButton(9))
+			{
+				if(!wasManualButtonPressed)
+				{
+					isShootingManually = !isShootingManually;
+				}
+				wasManualButtonPressed = true;
+			}
+			else
+				wasManualButtonPressed = false;
+			
+			//update shooter motors
+			ShooterUpdate();
+			
+			
+			
+			//DRIVE CODE
+			
+			
+			if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
 			{
 				BackMotors.TankDrive(1,1,0);
 				FrontMotors.TankDrive(1,1,0);
 			}
-			else if (gamepad.GetRawAxis(6)==-1) //If the dpad arrow down is pushed, full power backwards
+			else if (gamepad.GetRawAxis(6) == -1) //If the dpad arrow down is pushed, full power backwards
 			{
 				BackMotors.TankDrive(-1,-1,0);
 				FrontMotors.TankDrive(-1,-1,0);
 			}
-			else if (fabs(averageSpeed)<= 0.8) //Regular speed control if the average of both sticks is less than .8
+			else if (fabs(averageSpeed) <= 0.8) //Regular speed control if the average of both sticks is less than .8
 			{
-				BackMotors.TankDrive(leftStickSpeed,rightStickSpeed,0);
-				FrontMotors.TankDrive(leftStickSpeed,rightStickSpeed,0);
+				BackMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
+				FrontMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
 			}
 			else //Average speed stabilizer if average of both sticks is greater than .8
 			{
-				BackMotors.TankDrive(averageSpeed,averageSpeed,0);
-				FrontMotors.TankDrive(averageSpeed,averageSpeed,0);
+				BackMotors.TankDrive(averageSpeed, averageSpeed, 0);
+				FrontMotors.TankDrive(averageSpeed, averageSpeed, 0);
 			}
 			
-			ShooterUpdate();
+			
 			
 			Wait(0.005);
 		}
 	}
-	double avg (double a, double b)
+	inline double avg (double a, double b)
 	{
 		return (a+b)/2; //MISHA!!!! YOUR PARENTHESES WERE WRONG!! YOU WERE DOING a+(b/2)!! WHICH CAUSED A LOT OF PAIN!!
 	}
