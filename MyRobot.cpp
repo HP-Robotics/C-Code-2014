@@ -18,8 +18,12 @@ class RobotDemo : public SimpleRobot
 	Solenoid rightLoader;
 	Jaguar shooter;
 	Jaguar shooter2; //chugga needs two motors
+	bool isShooting;
+	DigitalInput pi;
+	Timer timer;
 	double leftStickSpeed;
 	double rightStickSpeed;
+
 public:
 	RobotDemo(void):
 		BackMotors(1, 3),
@@ -37,6 +41,9 @@ public:
 		rightLoader(3,4),
 		shooter(5),
 		shooter2(6),
+		isShooting(0),
+		pi(14),
+		timer(),
 		leftStickSpeed(0),
 		rightStickSpeed(0)
 	{
@@ -46,9 +53,61 @@ public:
 		BackMotors.SetExpiration(0.1);
 		FrontMotors.SetExpiration(0.1);
 	}
+	
+	
+	bool ShooterUpdate()
+	{
+		///if(isShooting){
+			///runmotor();
+			///isShooting = limitswitchdepressed;
+		///}
+		//if(!isShooting){
+			///if(limitswitch depressed)
+			///	stopmotor
+			///else
+			/// runmotor
+		///}
+	}
+	
+	
+	void ShootSafe()
+	{
+		///if(we decide to shoot)
+			ShootOverride();
+	}
+	
+	void ShootOverride()
+	{
+		isShooting = true;
+	}
+	
+	void AutonomousMove()
+	{
+		leftEncA.
+		FrontMotors.TankDrive(1, 1, 0);
+		BackMotors.TankDrive(1, 1, 0);
+	}
+	
 	void Autonomous(void)
 	{
-		//Nuthin
+		timer.Reset();
+		timer.Start();
+		while(timer.Get() < 5 && pi.Get())
+		{
+			//digital input is pulled high by default, low means hot
+		}
+		
+		ShootOverride();
+		timer.Reset();
+		timer.Start();
+		
+		while(IsAutonomous() && IsEnabled())
+		{
+			ShooterUpdate();
+			if(timer.Get() > .4)
+				AutonomousMove();
+		}
+		
 	}
 	void OperatorControl(void)
 	{
@@ -110,6 +169,9 @@ public:
 				BackMotors.TankDrive(averageSpeed,averageSpeed,0);
 				FrontMotors.TankDrive(averageSpeed,averageSpeed,0);
 			}
+			
+			ShooterUpdate();
+			
 			Wait(0.005);
 		}
 	}
