@@ -39,11 +39,11 @@ public:
 		leftWheels(leftEncA, leftEncB, false, Encoder::k4X),
 		rightWheels(rightEncA, rightEncB, false, Encoder::k4X),
 		gamepad(1),
-		comp(1,1),
-		leftLoader(1,2),
-		rightLoader(3,4),
+		comp(5,1),
+		leftLoader(1),
+		rightLoader(2),
 		shooter(5),
-		shooterLimit(5),
+		shooterLimit(7),
 		pi(14)
 		
 	{
@@ -53,7 +53,6 @@ public:
 		BackMotors.SetExpiration(0.1);
 		FrontMotors.SetExpiration(0.1);
 	}
-	
 	
 	void ShooterUpdate()
 	{
@@ -84,7 +83,7 @@ public:
 	}
 	void ShootSafe()
 	{
-		///if(we decide to shoot)
+		//if(we decide to shoot)
 			ShootOverride();
 	}
 	
@@ -164,7 +163,6 @@ public:
 				leftLoader.Set(false);
 				rightLoader.Set(false);
 			}
-			
 			
 			//SHOOTING - TODO: Separate Safe and Override
 			
