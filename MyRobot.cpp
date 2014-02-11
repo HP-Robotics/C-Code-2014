@@ -1,7 +1,6 @@
 #include "WPILib.h"
 #include "math.h"
 
-
 #define SHOOTERSPEED .5f
 
 class RobotDemo : public SimpleRobot
@@ -66,14 +65,16 @@ public:
 			}
 			else
 				shooter.Set(0);
-			
 		}
-		else{
-			if(isShooting){
+		else
+		{
+			if(isShooting)
+			{
 				shooter.Set(SHOOTERSPEED);
 				isShooting = !shooterLimit.Get();
 			}
-			if(!isShooting){
+			if(!isShooting)
+			{
 				if(shooterLimit.Get())
 					shooter.Set(0);
 				else
@@ -81,8 +82,6 @@ public:
 			}
 		}
 	}
-	
-	
 	void ShootSafe()
 	{
 		///if(we decide to shoot)
@@ -124,15 +123,12 @@ public:
 	}
 	void OperatorControl(void)
 	{
-		
-		
 		double averageSpeed = 0;
 		BackMotors.SetSafetyEnabled(false);
 		FrontMotors.SetSafetyEnabled(false);
 		bool wasManualButtonPressed = false;
 		bool wasSlowButtonPressed = false;
 		int slowMode;
-		
 		while (IsOperatorControl() && IsEnabled())
 		{
 			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 3);
@@ -177,7 +173,6 @@ public:
 				ShootOverride();
 			}
 			
-			
 			//toggle manual mode
 			if (gamepad.GetRawButton(9))
 			{
@@ -189,15 +184,10 @@ public:
 			}
 			else
 				wasManualButtonPressed = false;
-			
 			//update shooter motors
 			ShooterUpdate();
 			
-			
-			
 			//DRIVE CODE
-			
-			
 			if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
 			{
 				BackMotors.TankDrive(1,1,0);
@@ -218,9 +208,6 @@ public:
 				BackMotors.TankDrive(averageSpeed, averageSpeed, 0);
 				FrontMotors.TankDrive(averageSpeed, averageSpeed, 0);
 			}
-			
-			
-			
 			Wait(0.005);
 		}
 	}
