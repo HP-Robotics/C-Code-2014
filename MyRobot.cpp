@@ -226,7 +226,7 @@ public:
 	}
 	inline double avg (double a, double b)
 	{
-		return (a+b)/2; //MISHA!!!! YOUR PARENTHESES WERE WRONG!! YOU WERE DOING a+(b/2)!! WHICH CAUSED A LOT OF PAIN!!
+		return (a+b)/2;
 	}
 };
 START_ROBOT_CLASS(RobotDemo);
