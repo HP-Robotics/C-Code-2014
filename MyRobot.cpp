@@ -1,7 +1,6 @@
 #include "WPILib.h"
 #include "math.h"
 
-
 #define SHOOTERSPEED .5f
 
 class RobotDemo : public SimpleRobot
@@ -40,11 +39,11 @@ public:
 		leftWheels(leftEncA, leftEncB, false, Encoder::k4X),
 		rightWheels(rightEncA, rightEncB, false, Encoder::k4X),
 		gamepad(1),
-		comp(1,1),
-		leftLoader(1,2),
-		rightLoader(3,4),
+		comp(5,1),
+		leftLoader(1),
+		rightLoader(2),
 		shooter(5),
-		shooterLimit(5),
+		shooterLimit(7),
 		pi(14)
 		
 	{
@@ -54,7 +53,6 @@ public:
 		BackMotors.SetExpiration(0.1);
 		FrontMotors.SetExpiration(0.1);
 	}
-	
 	
 	void ShooterUpdate()
 	{
@@ -66,14 +64,16 @@ public:
 			}
 			else
 				shooter.Set(0);
-			
 		}
-		else{
-			if(isShooting){
+		else
+		{
+			if(isShooting)
+			{
 				shooter.Set(SHOOTERSPEED);
 				isShooting = !shooterLimit.Get();
 			}
-			if(!isShooting){
+			if(!isShooting)
+			{
 				if(shooterLimit.Get())
 					shooter.Set(0);
 				else
@@ -81,11 +81,9 @@ public:
 			}
 		}
 	}
-	
-	
 	void ShootSafe()
 	{
-		///if(we decide to shoot)
+		//if(we decide to shoot)
 			ShootOverride();
 	}
 	
@@ -124,15 +122,12 @@ public:
 	}
 	void OperatorControl(void)
 	{
-		
-		
 		double averageSpeed = 0;
 		BackMotors.SetSafetyEnabled(false);
 		FrontMotors.SetSafetyEnabled(false);
 		bool wasManualButtonPressed = false;
 		bool wasSlowButtonPressed = false;
 		int slowMode;
-		
 		while (IsOperatorControl() && IsEnabled())
 		{
 			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 3);
@@ -169,14 +164,12 @@ public:
 				rightLoader.Set(false);
 			}
 			
-			
 			//SHOOTING - TODO: Separate Safe and Override
 			
 			if (gamepad.GetRawButton(7) || gamepad.GetRawButton(8)) //If bringDown or fire pressed, turn the kicker motor
 			{
 				ShootOverride();
 			}
-			
 			
 			//toggle manual mode
 			if (gamepad.GetRawButton(9))
@@ -189,15 +182,10 @@ public:
 			}
 			else
 				wasManualButtonPressed = false;
-			
 			//update shooter motors
 			ShooterUpdate();
 			
-			
-			
 			//DRIVE CODE
-			
-			
 			if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
 			{
 				BackMotors.TankDrive(1,1,0);
@@ -218,15 +206,12 @@ public:
 				BackMotors.TankDrive(averageSpeed, averageSpeed, 0);
 				FrontMotors.TankDrive(averageSpeed, averageSpeed, 0);
 			}
-			
-			
-			
 			Wait(0.005);
 		}
 	}
 	inline double avg (double a, double b)
 	{
-		return (a+b)/2; //MISHA!!!! YOUR PARENTHESES WERE WRONG!! YOU WERE DOING a+(b/2)!! WHICH CAUSED A LOT OF PAIN!!
+		return (a+b)/2;
 	}
 };
 START_ROBOT_CLASS(RobotDemo);
