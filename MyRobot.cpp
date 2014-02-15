@@ -1,7 +1,15 @@
 #include "WPILib.h"
+#include "SmartDashboard/SmartDashboard.h"
 #include "math.h"
 
-#define SHOOTERSPEED .5f
+#define SHOOTERSPEED -.5f
+
+
+inline float GetDistanceInCm(AnalogChannel& ultrasonic)
+{
+	return ultrasonic.GetVoltage() /1024;
+}
+
 
 class RobotDemo : public SimpleRobot
 {
@@ -44,6 +52,7 @@ public:
 		rightLoader(2),
 		shooter(5),
 		shooterLimit(7),
+		isShootingManually(false),
 		pi(14)
 		
 	{
@@ -94,13 +103,15 @@ public:
 	
 	void AutonomousMove()
 	{
-		
-		FrontMotors.TankDrive(1, 1, 0);
-		BackMotors.TankDrive(1, 1, 0);
+		//if(sonicSensor)
+		FrontMotors.TankDrive(.75, .75, 0);
+		BackMotors.TankDrive(.75, .75, 0);
 	}
 	
 	void Autonomous(void)
 	{
+		FrontMotors.SetSafetyEnabled(false);
+		BackMotors.SetSafetyEnabled(false);
 		timer.Reset();
 		timer.Start();
 		while(timer.Get() < 5 && pi.Get())
@@ -123,16 +134,22 @@ public:
 	void OperatorControl(void)
 	{
 		double averageSpeed = 0;
-		BackMotors.SetSafetyEnabled(false);
-		FrontMotors.SetSafetyEnabled(false);
+		BackMotors.SetSafetyEnabled(true);
+		FrontMotors.SetSafetyEnabled(true);
 		bool wasManualButtonPressed = false;
 		bool wasSlowButtonPressed = false;
 		int slowMode;
 		while (IsOperatorControl() && IsEnabled())
 		{
-			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 3);
-			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 3);
+			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 1);
+			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 1);
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
+			
+			printf("%f (%f) \n", GetDistanceInCm(sonicSensor), sonicSensor.GetVoltage());
+			
+			
+			//DISTANCE TO SMART DASHBOARD
+			SmartDashboard::PutNumber("distance",sonicSensor.GetVoltage()/1024);
 			
 			//SLOW MODE LOGIC
 			if (gamepad.GetRawButton(2))
@@ -158,7 +175,7 @@ public:
 				leftLoader.Set(true);
 				rightLoader.Set(true);
 			}
-			if (gamepad.GetRawButton(5))
+			if (gamepad.GetRawButton(7))
 			{
 				leftLoader.Set(false);
 				rightLoader.Set(false);
@@ -166,10 +183,15 @@ public:
 			
 			//SHOOTING - TODO: Separate Safe and Override
 			
-			if (gamepad.GetRawButton(7) || gamepad.GetRawButton(8)) //If bringDown or fire pressed, turn the kicker motor
+			if (gamepad.GetRawButton(8)) //If bringDown or fire pressed, turn the kicker motor
+			{
+				ShootSafe();
+			}
+			else if(gamepad.GetRawButton(5))
 			{
 				ShootOverride();
 			}
+			
 			
 			//toggle manual mode
 			if (gamepad.GetRawButton(9))
@@ -186,7 +208,7 @@ public:
 			ShooterUpdate();
 			
 			//DRIVE CODE
-			if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
+			/*if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
 			{
 				BackMotors.TankDrive(1,1,0);
 				FrontMotors.TankDrive(1,1,0);
@@ -195,8 +217,8 @@ public:
 			{
 				BackMotors.TankDrive(-1,-1,0);
 				FrontMotors.TankDrive(-1,-1,0);
-			}
-			else if (fabs(averageSpeed) <= 0.8) //Regular speed control if the average of both sticks is less than .8
+			}*/
+			if (fabs(averageSpeed) <= 0.8) //Regular speed control if the average of both sticks is less than .8
 			{
 				BackMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
 				FrontMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
