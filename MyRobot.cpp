@@ -2,7 +2,7 @@
 #include "SmartDashboard/SmartDashboard.h"
 #include "math.h"
 
-#define SHOOTERSPEED -.5f
+#define SHOOTERSPEED -.4f
 
 
 inline float GetDistanceInCm(AnalogChannel& ultrasonic)
@@ -16,6 +16,7 @@ class RobotDemo : public SimpleRobot
 	RobotDrive BackMotors;
 	RobotDrive FrontMotors;
 	AnalogChannel sonicSensor;
+	AnalogChannel sonicSensor2;
 	DigitalInput rightEncA;
 	DigitalInput rightEncB;
 	DigitalInput leftEncA;
@@ -40,6 +41,7 @@ public:
 		BackMotors(1, 3),
 		FrontMotors(2, 4),
 		sonicSensor(1),
+		sonicSensor2(2),
 		rightEncA(3),
 		rightEncB(4),
 		leftEncA(1),
@@ -52,6 +54,7 @@ public:
 		rightLoader(2),
 		shooter(5),
 		shooterLimit(7),
+		isShooting(false),
 		isShootingManually(false),
 		pi(14)
 		
@@ -79,7 +82,7 @@ public:
 			if(isShooting)
 			{
 				shooter.Set(SHOOTERSPEED);
-				isShooting = !shooterLimit.Get();
+				isShooting = shooterLimit.Get();
 			}
 			if(!isShooting)
 			{
@@ -145,7 +148,7 @@ public:
 			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 1);
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
 			
-			printf("%f (%f) \n", GetDistanceInCm(sonicSensor), sonicSensor.GetVoltage());
+			printf("%u - %f (%f), %f (%f) \n", shooterLimit.Get(), GetDistanceInCm(sonicSensor), sonicSensor.GetVoltage(), GetDistanceInCm(sonicSensor2), sonicSensor2.GetVoltage());
 			
 			
 			//DISTANCE TO SMART DASHBOARD
@@ -181,7 +184,6 @@ public:
 				rightLoader.Set(false);
 			}
 			
-			//SHOOTING - TODO: Separate Safe and Override
 			
 			if (gamepad.GetRawButton(8)) //If bringDown or fire pressed, turn the kicker motor
 			{
@@ -205,7 +207,7 @@ public:
 			else
 				wasManualButtonPressed = false;
 			//update shooter motors
-			ShooterUpdate();
+			//ShooterUpdate();
 			
 			//DRIVE CODE
 			/*if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
