@@ -2,7 +2,7 @@
 #include "SmartDashboard/SmartDashboard.h"
 #include "math.h"
 
-#define SHOOTERSPEED -.4f
+#define SHOOTERSPEED -.5f
 
 
 inline float GetDistanceInCm(AnalogChannel& ultrasonic)
@@ -32,9 +32,12 @@ class RobotDemo : public SimpleRobot
 	bool isShooting;
 	bool isShootingManually;
 	DigitalInput pi;
-	Timer timer;
+	Timer autonomousTimer;
 	double leftStickSpeed;
 	double rightStickSpeed;
+	bool running;
+	bool readytoshoot;
+	Timer shooterTimer;
 
 public:
 	RobotDemo(void):
@@ -54,9 +57,10 @@ public:
 		rightLoader(2),
 		shooter(5),
 		shooterLimit(7),
-		isShooting(false),
 		isShootingManually(false),
-		pi(14)
+		pi(14),
+		running(false),
+		readytoshoot(false)
 		
 	{
 		comp.Start();
@@ -70,42 +74,69 @@ public:
 	{
 		if(isShootingManually)
 		{
-			if(gamepad.GetRawButton(7) || gamepad.GetRawButton(8))
+			if(gamepad.GetRawButton(6) || gamepad.GetRawButton(8))
 			{
 				shooter.Set(SHOOTERSPEED);
 			}
 			else
 				shooter.Set(0);
+			
+			running = false;
+			readytoshoot = shooterLimit.Get();
 		}
 		else
 		{
-			if(isShooting)
-			{
-				shooter.Set(SHOOTERSPEED);
-				isShooting = shooterLimit.Get();
-			}
-			if(!isShooting)
-			{
-				if(shooterLimit.Get())
-					shooter.Set(0);
+			if (running) {
+				if(readytoshoot)
+				{
+					//firing
+					if(!shooterLimit.Get() || shooterTimer.Get() > 1)
+					{
+						//limit off or safety timer
+						readytoshoot = false;
+						running = false;
+					}
+				}
 				else
-					shooter.Set(SHOOTERSPEED);
+				{
+					//reloading - same thing
+					if(shooterLimit.Get() || shooterTimer.Get() > 3)
+					{
+						//limit on or timer
+						readytoshoot = true;
+						running = false;
+					}
+				}
 			}
+			
+			shooter.Set(running ? SHOOTERSPEED : 0);
 		}
 	}
 	void ShootSafe()
 	{
+		if(!readytoshoot)
+			ShootOverride();
+		
+		
 		//if(we decide to shoot)
 			ShootOverride();
 	}
 	
 	void ShootOverride()
 	{
-		isShooting = true;
+		if(running)
+			return;
+		
+		running = true;
+		shooterTimer.Reset();
+		shooterTimer.Start();
+		
 	}
 	
 	void AutonomousMove()
 	{
+		readytoshoot = shooterLimit.Get();
+		
 		//if(sonicSensor)
 		FrontMotors.TankDrive(.75, .75, 0);
 		BackMotors.TankDrive(.75, .75, 0);
@@ -113,23 +144,25 @@ public:
 	
 	void Autonomous(void)
 	{
+		readytoshoot = shooterLimit.Get();
+		
 		FrontMotors.SetSafetyEnabled(false);
 		BackMotors.SetSafetyEnabled(false);
-		timer.Reset();
-		timer.Start();
-		while(timer.Get() < 5 && pi.Get())
+		autonomousTimer.Reset();
+		autonomousTimer.Start();
+		while(autonomousTimer.Get() < 5 && pi.Get())
 		{
 			//digital input is pulled high by default, low means hot
 		}
 		
 		ShootOverride();
-		timer.Reset();
-		timer.Start();
+		autonomousTimer.Reset();
+		autonomousTimer.Start();
 		
 		while(IsAutonomous() && IsEnabled())
 		{
 			ShooterUpdate();
-			if(timer.Get() > .4)
+			if(autonomousTimer.Get() > .4)
 				AutonomousMove();
 		}
 		
@@ -148,11 +181,12 @@ public:
 			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 1);
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
 			
-			printf("%u - %f (%f), %f (%f) \n", shooterLimit.Get(), GetDistanceInCm(sonicSensor), sonicSensor.GetVoltage(), GetDistanceInCm(sonicSensor2), sonicSensor2.GetVoltage());
+			printf("%f - %f\n", sonicSensor.GetVoltage(), sonicSensor2.GetVoltage());
 			
 			
 			//DISTANCE TO SMART DASHBOARD
 			SmartDashboard::PutNumber("distance",sonicSensor.GetVoltage()/1024);
+			
 			
 			//SLOW MODE LOGIC
 			if (gamepad.GetRawButton(2))
@@ -173,7 +207,7 @@ public:
 			
 			//LIFTING
 			
-			if (gamepad.GetRawButton(6))
+			if (gamepad.GetRawButton(5))
 			{
 				leftLoader.Set(true);
 				rightLoader.Set(true);
@@ -185,11 +219,11 @@ public:
 			}
 			
 			
-			if (gamepad.GetRawButton(8)) //If bringDown or fire pressed, turn the kicker motor
+			if (gamepad.GetRawButton(6)) //If bringDown or fire pressed, turn the kicker motor
 			{
 				ShootSafe();
 			}
-			else if(gamepad.GetRawButton(5))
+			else if(gamepad.GetRawButton(8))
 			{
 				ShootOverride();
 			}
@@ -207,7 +241,7 @@ public:
 			else
 				wasManualButtonPressed = false;
 			//update shooter motors
-			//ShooterUpdate();
+			ShooterUpdate();
 			
 			//DRIVE CODE
 			/*if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
