@@ -2,7 +2,7 @@
 #include "SmartDashboard/SmartDashboard.h"
 #include "math.h"
 
-#define SHOOTERSPEED -.5f
+#define SHOOTERSPEED -.8f
 
 
 inline float GetDistanceInCm(AnalogChannel& ultrasonic)
@@ -16,7 +16,7 @@ class RobotDemo : public SimpleRobot
 	RobotDrive BackMotors;
 	RobotDrive FrontMotors;
 	AnalogChannel sonicSensor;
-	AnalogChannel sonicSensor2;
+	//AnalogChannel sonicSensor2;
 	DigitalInput rightEncA;
 	DigitalInput rightEncB;
 	DigitalInput leftEncA;
@@ -25,8 +25,8 @@ class RobotDemo : public SimpleRobot
 	Encoder rightWheels;
 	Joystick gamepad;
 	Compressor comp;
-	Solenoid leftLoader;
-	Solenoid rightLoader;
+	Solenoid upLoader;
+	Solenoid downLoader;
 	Jaguar shooter;
 	DigitalInput shooterLimit;
 	bool isShooting;
@@ -44,7 +44,7 @@ public:
 		BackMotors(1, 3),
 		FrontMotors(2, 4),
 		sonicSensor(1),
-		sonicSensor2(2),
+		//sonicSensor2(2),
 		rightEncA(3),
 		rightEncB(4),
 		leftEncA(1),
@@ -52,9 +52,9 @@ public:
 		leftWheels(leftEncA, leftEncB, false, Encoder::k4X),
 		rightWheels(rightEncA, rightEncB, false, Encoder::k4X),
 		gamepad(1),
-		comp(5,1),
-		leftLoader(1),
-		rightLoader(2),
+		comp(6,1),
+		upLoader(1),
+		downLoader(2),
 		shooter(5),
 		shooterLimit(7),
 		isShootingManually(false),
@@ -64,6 +64,8 @@ public:
 		
 	{
 		comp.Start();
+		upLoader.Set(true);
+		downLoader.Set(false);
 		leftWheels.Start();
 		rightWheels.Start();
 		BackMotors.SetExpiration(0.1);
@@ -181,7 +183,7 @@ public:
 			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 1);
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
 			
-			printf("%f - %f\n", sonicSensor.GetVoltage(), sonicSensor2.GetVoltage());
+			printf("%f\n", sonicSensor.GetVoltage());
 			
 			
 			//DISTANCE TO SMART DASHBOARD
@@ -209,13 +211,14 @@ public:
 			
 			if (gamepad.GetRawButton(5))
 			{
-				leftLoader.Set(true);
-				rightLoader.Set(true);
+				upLoader.Set(true);
+				downLoader.Set(false);
 			}
 			if (gamepad.GetRawButton(7))
 			{
-				leftLoader.Set(false);
-				rightLoader.Set(false);
+				upLoader.Set(false);
+				downLoader.Set(true);
+				
 			}
 			
 			
