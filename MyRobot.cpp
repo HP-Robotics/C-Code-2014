@@ -150,6 +150,7 @@ public:
 		
 		FrontMotors.SetSafetyEnabled(false);
 		BackMotors.SetSafetyEnabled(false);
+		shooter.SetSafetyEnabled(false);
 		autonomousTimer.Reset();
 		autonomousTimer.Start();
 		while(autonomousTimer.Get() < 5 && pi.Get())
@@ -174,6 +175,7 @@ public:
 		double averageSpeed = 0;
 		BackMotors.SetSafetyEnabled(true);
 		FrontMotors.SetSafetyEnabled(true);
+		shooter.SetSafetyEnabled(true);
 		bool wasManualButtonPressed = false;
 		bool wasSlowButtonPressed = false;
 		int slowMode;
