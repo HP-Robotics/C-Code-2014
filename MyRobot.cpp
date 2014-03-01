@@ -52,7 +52,7 @@ public:
 		leftWheels(leftEncA, leftEncB, false, Encoder::k4X),
 		rightWheels(rightEncA, rightEncB, false, Encoder::k4X),
 		gamepad(1),
-		comp(6,1),
+		comp(5,1),
 		upLoader(1),
 		downLoader(2),
 		shooter(5),
@@ -63,7 +63,7 @@ public:
 		readytoshoot(false)
 		
 	{
-		comp.Start();
+		
 		upLoader.Set(true);
 		downLoader.Set(false);
 		leftWheels.Start();
@@ -146,6 +146,7 @@ public:
 	
 	void Autonomous(void)
 	{
+		comp.Start();
 		readytoshoot = shooterLimit.Get();
 		
 		FrontMotors.SetSafetyEnabled(false);
@@ -172,6 +173,7 @@ public:
 	}
 	void OperatorControl(void)
 	{
+		comp.Start();
 		double averageSpeed = 0;
 		BackMotors.SetSafetyEnabled(true);
 		FrontMotors.SetSafetyEnabled(true);
@@ -271,6 +273,9 @@ public:
 			}
 			Wait(0.005);
 		}
+		
+		comp.Stop();
+		
 	}
 	inline double avg (double a, double b)
 	{
