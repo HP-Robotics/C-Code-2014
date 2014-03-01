@@ -3,12 +3,19 @@
 #include "math.h"
 
 #define SHOOTERSPEED -.8f
+#define RANGEINSTUPIDINCHES 15
 
+inline float GetDistanceInStupidInches(AnalogChannel& ultrasonic)
+{
+	return ultrasonic.GetVoltage()*80.14 + 1.6456;
+}
 
 inline float GetDistanceInCm(AnalogChannel& ultrasonic)
 {
-	return ultrasonic.GetVoltage() /1024;
+	return GetDistanceInStupidInches(ultrasonic) * 2.54f;
 }
+
+
 
 
 class RobotDemo : public SimpleRobot
@@ -44,7 +51,6 @@ public:
 		BackMotors(1, 3),
 		FrontMotors(2, 4),
 		sonicSensor(1),
-		//sonicSensor2(2),
 		rightEncA(3),
 		rightEncB(4),
 		leftEncA(1),
@@ -92,21 +98,25 @@ public:
 				if(readytoshoot)
 				{
 					//firing
+					printf("Firing...\n");
 					if(!shooterLimit.Get() || shooterTimer.Get() > 1)
 					{
 						//limit off or safety timer
 						readytoshoot = false;
 						running = false;
+						printf("Shot fired\n");
 					}
 				}
 				else
 				{
+					printf("Reloading...\n");
 					//reloading - same thing
 					if(shooterLimit.Get() || shooterTimer.Get() > 3)
 					{
 						//limit on or timer
 						readytoshoot = true;
 						running = false;
+						printf("Reload finished\n");
 					}
 				}
 			}
@@ -135,42 +145,69 @@ public:
 		
 	}
 	
-	void AutonomousMove()
-	{
-		readytoshoot = shooterLimit.Get();
-		
-		//if(sonicSensor)
-		FrontMotors.TankDrive(.75, .75, 0);
-		BackMotors.TankDrive(.75, .75, 0);
-	}
-	
 	void Autonomous(void)
 	{
+		
+		//setup
+		
 		comp.Start();
 		readytoshoot = shooterLimit.Get();
-		
+		bool reachedintime = false;
 		FrontMotors.SetSafetyEnabled(false);
 		BackMotors.SetSafetyEnabled(false);
 		shooter.SetSafetyEnabled(false);
+		FrontMotors.TankDrive(0.0, 0.0, 0);
+		BackMotors.TankDrive(0.0, 0.0, 0);
+		shooter.Set(0,0);
 		autonomousTimer.Reset();
 		autonomousTimer.Start();
-		while(autonomousTimer.Get() < 5 && pi.Get())
-		{
-			//digital input is pulled high by default, low means hot
-		}
 		
-		ShootOverride();
-		autonomousTimer.Reset();
-		autonomousTimer.Start();
+		//drive up to shooting range
 		
 		while(IsAutonomous() && IsEnabled())
 		{
-			ShooterUpdate();
-			if(autonomousTimer.Get() > .4)
-				AutonomousMove();
+			if(GetDistanceInStupidInches(sonicSensor) <= RANGEINSTUPIDINCHES)
+			{
+				reachedintime = true;
+				break;
+			}
+			if(autonomousTimer.Get() > 3)
+				break;
+			FrontMotors.TankDrive(1, 1, 0);
+			BackMotors.TankDrive(1, 1, 0);
+			Wait(0.01);
 		}
 		
+		FrontMotors.TankDrive(0.0, 0.0, 0);
+		BackMotors.TankDrive(0.0, 0.0, 0);
+		
+		//if we didn't get there in time we are most likely not in the right position, so we're not going to shoot
+		if(reachedintime)
+		{
+			//wait to give the pi opportunity to get a real measurement
+			Wait(1);
+			
+			printf("Waiting for hot signal\n");
+			while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() < 5 && pi.Get())
+			{
+				//digital input is pulled high by default, low means hot
+				Wait(0.01);
+			}
+			
+			printf("Saw hot or 5 sec expired\n");
+			ShootOverride();
+			
+			while(IsAutonomous() && IsEnabled()){
+				ShooterUpdate();
+				Wait(0.01);
+			}
+		}
+		
+		autonomousTimer.Stop();
 	}
+	
+	
+	
 	void OperatorControl(void)
 	{
 		comp.Start();
@@ -187,7 +224,7 @@ public:
 			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 1);
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
 			
-			printf("%f\n", sonicSensor.GetVoltage());
+			printf("%f (%f)\n", GetDistanceInStupidInches(sonicSensor), sonicSensor.GetVoltage());
 			
 			
 			//DISTANCE TO SMART DASHBOARD
