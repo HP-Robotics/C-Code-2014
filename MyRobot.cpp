@@ -280,6 +280,10 @@ public:
 			{
 				upLoader.Set(true);
 				downLoader.Set(false);
+				if(!running && !readytoshoot)
+				{
+					ShootSafe();
+				}
 			}
 			if (gamepad.GetRawButton(7))
 			{
