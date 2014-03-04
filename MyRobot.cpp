@@ -3,7 +3,15 @@
 #include "math.h"
 
 #define SHOOTERSPEED -.8f
-#define RANGEINSTUPIDINCHES 15
+#define RANGEINSTUPIDINCHES 60
+#define AUTONOMOUSBACKUPTIME 2
+#define AUTONOMOUSMINTIME .5
+#define AUTONOMOUSMAXTIME 3
+
+inline bool IsSensorWorking(AnalogChannel& ultrasonic)
+{
+	return ultrasonic.GetVoltage() > 0.02;
+}
 
 inline float GetDistanceInStupidInches(AnalogChannel& ultrasonic)
 {
@@ -152,7 +160,7 @@ public:
 		
 		comp.Start();
 		readytoshoot = shooterLimit.Get();
-		bool reachedintime = false;
+		bool goingtoshoot = false;
 		FrontMotors.SetSafetyEnabled(false);
 		BackMotors.SetSafetyEnabled(false);
 		shooter.SetSafetyEnabled(false);
@@ -163,26 +171,44 @@ public:
 		autonomousTimer.Start();
 		
 		//drive up to shooting range
-		
-		while(IsAutonomous() && IsEnabled())
-		{
-			if(GetDistanceInStupidInches(sonicSensor) <= RANGEINSTUPIDINCHES)
+		if(IsSensorWorking(sonicSensor)){
+			while(IsAutonomous() && IsEnabled())
 			{
-				reachedintime = true;
-				break;
+				if(GetDistanceInStupidInches(sonicSensor) <= RANGEINSTUPIDINCHES && autonomousTimer.Get() >= AUTONOMOUSMINTIME)
+				{
+					goingtoshoot = true;
+					break;
+				}
+				if(autonomousTimer.Get() >= AUTONOMOUSMAXTIME)
+					break;
+				FrontMotors.TankDrive(1, 1, 0);
+				BackMotors.TankDrive(1, 1, 0);
+				Wait(0.01);
 			}
-			if(autonomousTimer.Get() > 3)
-				break;
-			FrontMotors.TankDrive(1, 1, 0);
-			BackMotors.TankDrive(1, 1, 0);
-			Wait(0.01);
 		}
+		else
+		{
+			//sensor's broken
+			//rely on the timer
+			goingtoshoot = true; //we always get there "in time"
+			while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= AUTONOMOUSBACKUPTIME)
+			{
+				FrontMotors.TankDrive(1, 1, 0);
+				BackMotors.TankDrive(1, 1, 0);
+				Wait(0.01);
+			}
+		}
+		
+		//brake
+		FrontMotors.TankDrive(-1, -1, 0);
+		BackMotors.TankDrive(-1, -1, 0);
+		Wait(0.3);
 		
 		FrontMotors.TankDrive(0.0, 0.0, 0);
 		BackMotors.TankDrive(0.0, 0.0, 0);
 		
 		//if we didn't get there in time we are most likely not in the right position, so we're not going to shoot
-		if(reachedintime)
+		if(goingtoshoot)
 		{
 			//wait to give the pi opportunity to get a real measurement
 			Wait(1);
@@ -288,7 +314,7 @@ public:
 			ShooterUpdate();
 			
 			//DRIVE CODE
-			/*if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
+			if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
 			{
 				BackMotors.TankDrive(1,1,0);
 				FrontMotors.TankDrive(1,1,0);
@@ -297,8 +323,8 @@ public:
 			{
 				BackMotors.TankDrive(-1,-1,0);
 				FrontMotors.TankDrive(-1,-1,0);
-			}*/
-			if (fabs(averageSpeed) <= 0.8) //Regular speed control if the average of both sticks is less than .8
+			}
+			else if (fabs(averageSpeed) <= 0.8) //Regular speed control if the average of both sticks is less than .8
 			{
 				BackMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
 				FrontMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
