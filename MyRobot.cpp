@@ -267,7 +267,8 @@ public:
 			
 			//SMART DASHBOARD OUTPUT
 			SmartDashboard::PutNumber("distance",sonicSensor.GetVoltage()/1024);
-			SmartDashboard::PutBoolean("slowmode", slowMode);
+			SmartDashboard::PutBoolean("nonslowmode", !slowMode);
+			SmartDashboard::PutBoolean("nonreversemode", !reverseMode);
 			
 			
 			//SLOW MODE LOGIC
