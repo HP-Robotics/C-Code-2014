@@ -243,18 +243,24 @@ public:
 		shooter.SetSafetyEnabled(true);
 		bool wasManualButtonPressed = false;
 		bool wasSlowButtonPressed = false;
-		int slowMode;
+		bool slowMode;
 		while (IsOperatorControl() && IsEnabled())
 		{
 			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 1);
 			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 1);
+			if (slowMode==true)
+			{
+				leftStickSpeed*=0.5;
+				rightStickSpeed*=0.5;
+			}
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
 			
 			printf("%f (%f)\n", GetDistanceInStupidInches(sonicSensor), sonicSensor.GetVoltage());
 			
 			
-			//DISTANCE TO SMART DASHBOARD
+			//SMART DASHBOARD OUTPUT
 			SmartDashboard::PutNumber("distance",sonicSensor.GetVoltage()/1024);
+			SmartDashboard::PutBoolean("slowmode", slowMode);
 			
 			
 			//SLOW MODE LOGIC
@@ -267,12 +273,7 @@ public:
 			}
 			else
 				wasSlowButtonPressed = false;
-			if (slowMode==true)
-			{
-				leftStickSpeed=leftStickSpeed*0.5;
-				rightStickSpeed=rightStickSpeed*0.5;
-				averageSpeed=averageSpeed*0.5;
-			}
+			
 			
 			//LIFTING
 			
