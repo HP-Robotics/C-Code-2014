@@ -243,15 +243,22 @@ public:
 		shooter.SetSafetyEnabled(true);
 		bool wasManualButtonPressed = false;
 		bool wasSlowButtonPressed = false;
+		bool wasReverseButtonPressed = false;
 		bool slowMode;
+		bool reverseMode;
 		while (IsOperatorControl() && IsEnabled())
 		{
 			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 1);
 			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 1);
-			if (slowMode==true)
+			if (slowMode)
 			{
 				leftStickSpeed*=0.5;
 				rightStickSpeed*=0.5;
+			}
+			if (reverseMode)
+			{
+				leftStickSpeed*=-1;
+				rightStickSpeed*=-1;
 			}
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
 			
@@ -264,7 +271,7 @@ public:
 			
 			
 			//SLOW MODE LOGIC
-			if (gamepad.GetRawButton(2))
+			if (gamepad.GetRawButton(3))
 			{
 				if(!wasSlowButtonPressed){
 					slowMode=!slowMode;
@@ -273,6 +280,17 @@ public:
 			}
 			else
 				wasSlowButtonPressed = false;
+			
+			//REVERSE MODE LOGIC
+			if (gamepad.GetRawButton(2))
+			{
+				if(!wasReverseButtonPressed){
+					reverseMode=!reverseMode;
+				}
+				wasReverseButtonPressed = true;
+			}
+			else
+				wasReverseButtonPressed = false;
 			
 			
 			//LIFTING
