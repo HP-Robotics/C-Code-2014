@@ -3,7 +3,7 @@
 #include "math.h"
 
 #define SHOOTERSPEED -.8f
-#define RANGEINSTUPIDINCHES 60
+#define RANGEINSTUPIDINCHES 20
 #define AUTONOMOUSBACKUPTIME 2
 #define AUTONOMOUSMINTIME .5
 #define AUTONOMOUSMAXTIME 3
@@ -106,25 +106,25 @@ public:
 				if(readytoshoot)
 				{
 					//firing
-					printf("Firing...\n");
+					//printf("Firing...\n");
 					if(!shooterLimit.Get() || shooterTimer.Get() > 1)
 					{
 						//limit off or safety timer
 						readytoshoot = false;
 						running = false;
-						printf("Shot fired\n");
+						//printf("Shot fired\n");
 					}
 				}
 				else
 				{
-					printf("Reloading...\n");
+					//printf("Reloading...\n");
 					//reloading - same thing
 					if(shooterLimit.Get() || shooterTimer.Get() > 3)
 					{
 						//limit on or timer
 						readytoshoot = true;
 						running = false;
-						printf("Reload finished\n");
+						//printf("Reload finished\n");
 					}
 				}
 			}
@@ -176,11 +176,14 @@ public:
 			{
 				if(GetDistanceInStupidInches(sonicSensor) <= RANGEINSTUPIDINCHES && autonomousTimer.Get() >= AUTONOMOUSMINTIME)
 				{
+					printf("In range (I guess) %f\n", GetDistanceInStupidInches(sonicSensor));
 					goingtoshoot = true;
 					break;
 				}
-				if(autonomousTimer.Get() >= AUTONOMOUSMAXTIME)
+				if(autonomousTimer.Get() >= AUTONOMOUSMAXTIME){
+					printf("Maxed out\n");
 					break;
+				}
 				FrontMotors.TankDrive(1, 1, 0);
 				BackMotors.TankDrive(1, 1, 0);
 				Wait(0.01);
@@ -188,6 +191,7 @@ public:
 		}
 		else
 		{
+			printf("sensor broken\n");
 			//sensor's broken
 			//rely on the timer
 			goingtoshoot = true; //we always get there "in time"
@@ -244,8 +248,8 @@ public:
 		bool wasManualButtonPressed = false;
 		bool wasSlowButtonPressed = false;
 		bool wasReverseButtonPressed = false;
-		bool slowMode;
-		bool reverseMode;
+		bool slowMode = false;
+		bool reverseMode = false;
 		while (IsOperatorControl() && IsEnabled())
 		{
 			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 1);
@@ -262,11 +266,10 @@ public:
 			}
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
 			
-			printf("%f (%f)\n", GetDistanceInStupidInches(sonicSensor), sonicSensor.GetVoltage());
 			
 			
 			//SMART DASHBOARD OUTPUT
-			SmartDashboard::PutNumber("distance",sonicSensor.GetVoltage()/1024);
+			SmartDashboard::PutNumber("distance",GetDistanceInStupidInches(sonicSensor));
 			SmartDashboard::PutBoolean("nonslowmode", !slowMode);
 			SmartDashboard::PutBoolean("nonreversemode", !reverseMode);
 			
@@ -352,12 +355,17 @@ public:
 			{
 				BackMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
 				FrontMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
+				//printf("left %f rigth %f\n", leftStickSpeed, rightStickSpeed);
 			}
 			else //Average speed stabilizer if average of both sticks is greater than .8
 			{
 				BackMotors.TankDrive(averageSpeed, averageSpeed, 0);
 				FrontMotors.TankDrive(averageSpeed, averageSpeed, 0);
 			}
+			
+			
+			printf("%d_%d\n", slowMode, reverseMode);
+			
 			Wait(0.005);
 		}
 		
