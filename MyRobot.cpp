@@ -323,15 +323,15 @@ public:
 			
 			if (gamepad.GetRawButton(6)) //If bringDown or fire pressed, turn the kicker motor
 			{
-				wasShootButtonPressed = true;
 				if(!wasShootButtonPressed)
 					ShootSafe();
+				wasShootButtonPressed = true;
 			}
 			else if(gamepad.GetRawButton(8))
 			{
-				wasShootButtonPressed = true;
 				if(!wasShootButtonPressed)
 					ShootOverride();
+				wasShootButtonPressed = true;
 			}
 			else
 				wasShootButtonPressed = false;
@@ -374,8 +374,8 @@ public:
 				}
 				else
 				{
-					BackMotors.TankDrive(1,1,0);
-					FrontMotors.TankDrive(1,1,0);
+					BackMotors.TankDrive(-1,-1,0);
+					FrontMotors.TankDrive(-1,-1,0);
 				}
 			}
 			else if (fabs(averageSpeed) <= 0.8) //Regular speed control if the average of both sticks is less than .8
@@ -391,7 +391,7 @@ public:
 			}
 			
 			
-			printf("%d_%d\n", slowMode, reverseMode);
+			printf("%f %u\n", GetDistanceInStupidInches(sonicSensor), shooterLimit.Get());
 			
 			Wait(0.005);
 		}
