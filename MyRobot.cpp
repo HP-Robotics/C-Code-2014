@@ -248,6 +248,7 @@ public:
 		bool wasManualButtonPressed = false;
 		bool wasSlowButtonPressed = false;
 		bool wasReverseButtonPressed = false;
+		bool wasShootButtonPressed = false;
 		bool slowMode = false;
 		bool reverseMode = false;
 		while (IsOperatorControl() && IsEnabled())
@@ -316,14 +317,24 @@ public:
 			}
 			
 			
+			// SHOOTING
+			
+			// This needs to be buffered so it doesn't continously trigger firing and loading in case the driver holds onto the button
+			
 			if (gamepad.GetRawButton(6)) //If bringDown or fire pressed, turn the kicker motor
 			{
-				ShootSafe();
+				wasShootButtonPressed = true;
+				if(!wasShootButtonPressed)
+					ShootSafe();
 			}
 			else if(gamepad.GetRawButton(8))
 			{
-				ShootOverride();
+				wasShootButtonPressed = true;
+				if(!wasShootButtonPressed)
+					ShootOverride();
 			}
+			else
+				wasShootButtonPressed = false;
 			
 			
 			//toggle manual mode
