@@ -354,13 +354,29 @@ public:
 			//DRIVE CODE
 			if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
 			{
-				BackMotors.TankDrive(1,1,0);
-				FrontMotors.TankDrive(1,1,0);
+				if(reverseMode)
+				{
+					BackMotors.TankDrive(-1,-1,0);
+					FrontMotors.TankDrive(-1,-1,0);
+				}
+				else
+				{
+					BackMotors.TankDrive(1,1,0);
+					FrontMotors.TankDrive(1,1,0);
+				}
 			}
 			else if (gamepad.GetRawAxis(6) == -1) //If the dpad arrow down is pushed, full power backwards
 			{
-				BackMotors.TankDrive(-1,-1,0);
-				FrontMotors.TankDrive(-1,-1,0);
+				if(reverseMode)
+				{
+					BackMotors.TankDrive(1,1,0);
+					FrontMotors.TankDrive(1,1,0);
+				}
+				else
+				{
+					BackMotors.TankDrive(1,1,0);
+					FrontMotors.TankDrive(1,1,0);
+				}
 			}
 			else if (fabs(averageSpeed) <= 0.8) //Regular speed control if the average of both sticks is less than .8
 			{
