@@ -122,7 +122,7 @@ public:
 					if(shooterLimit.Get() || shooterTimer.Get() > 3)
 					{
 						//limit on or timer
-						readytoshoot = true;
+						readytoshoot = shooterLimit.Get();
 						running = false;
 						//printf("Reload finished\n");
 					}
@@ -313,7 +313,6 @@ public:
 			{
 				upLoader.Set(false);
 				downLoader.Set(true);
-				
 			}
 			
 			
@@ -389,7 +388,6 @@ public:
 				BackMotors.TankDrive(averageSpeed, averageSpeed, 0);
 				FrontMotors.TankDrive(averageSpeed, averageSpeed, 0);
 			}
-			
 			
 			printf("%f %u\n", GetDistanceInStupidInches(sonicSensor), shooterLimit.Get());
 			
