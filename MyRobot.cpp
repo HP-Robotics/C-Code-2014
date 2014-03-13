@@ -272,17 +272,21 @@ public:
 				speed = (_dist - lastDistance) / (_time - lastTime);
 			}
 			
-			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 1);
-			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 1);
+			if(!reverseMode)
+			{
+				leftStickSpeed = -gamepad.GetRawAxis(2);
+				rightStickSpeed = -gamepad.GetRawAxis(4);
+			}
+			if (reverseMode)
+			{
+				leftStickSpeed = gamepad.GetRawAxis(4);
+				rightStickSpeed = gamepad.GetRawAxis(2);
+			}
+			
 			if (slowMode)
 			{
 				leftStickSpeed*=0.5;
 				rightStickSpeed*=0.5;
-			}
-			if (reverseMode)
-			{
-				leftStickSpeed*=-1;
-				rightStickSpeed*=-1;
 			}
 			averageSpeed = avg(leftStickSpeed,rightStickSpeed);
 			
