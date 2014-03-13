@@ -3,7 +3,8 @@
 #include "math.h"
 
 #define SHOOTERSPEED -.8f
-#define RANGEINSTUPIDINCHES 20
+#define RANGEINSTUPIDINCHES 72
+#define RANGETOLERANCEINSTUPIDINCHES 4
 #define AUTONOMOUSBACKUPTIME 2
 #define AUTONOMOUSMINTIME .5
 #define AUTONOMOUSMAXTIME 3
@@ -53,6 +54,10 @@ class RobotDemo : public SimpleRobot
 	bool running;
 	bool readytoshoot;
 	Timer shooterTimer;
+	Timer totalTimer;
+	double lastTime;
+	double lastDistance;
+	double speed;
 
 public:
 	RobotDemo(void):
@@ -74,8 +79,10 @@ public:
 		isShootingManually(false),
 		pi(14),
 		running(false),
-		readytoshoot(false)
-		
+		readytoshoot(false),
+		lastTime(0),
+		lastDistance(0),
+		speed(0)
 	{
 		
 		upLoader.Set(true);
@@ -138,7 +145,10 @@ public:
 			ShootOverride();
 		
 		
-		//if(we decide to shoot)
+		double range = RANGEINSTUPIDINCHES + speed * .57 - speed * speed * .0033;
+		
+		double dist = GetDistanceInStupidInches(sonicSensor);
+		if(dist > range - RANGETOLERANCEINSTUPIDINCHES && dist < range + RANGETOLERANCEINSTUPIDINCHES)
 			ShootOverride();
 	}
 	
@@ -240,6 +250,8 @@ public:
 	
 	void OperatorControl(void)
 	{
+		totalTimer.Reset();
+		totalTimer.Start();
 		comp.Start();
 		double averageSpeed = 0;
 		BackMotors.SetSafetyEnabled(true);
@@ -253,6 +265,13 @@ public:
 		bool reverseMode = false;
 		while (IsOperatorControl() && IsEnabled())
 		{
+			//SPEED CALCULATION
+			double _dist = GetDistanceInStupidInches(sonicSensor);
+			double _time = totalTimer.Get();
+			if((_time - lastTime) > 0){
+				speed = (_dist - lastDistance) / (_time - lastTime);
+			}
+			
 			leftStickSpeed = -pow(gamepad.GetRawAxis(2), 1);
 			rightStickSpeed = -pow(gamepad.GetRawAxis(4), 1);
 			if (slowMode)
@@ -389,7 +408,7 @@ public:
 				FrontMotors.TankDrive(averageSpeed, averageSpeed, 0);
 			}
 			
-			printf("%f %u\n", GetDistanceInStupidInches(sonicSensor), shooterLimit.Get());
+			printf("%f %f\n", GetDistanceInStupidInches(sonicSensor), speed);
 			
 			Wait(0.005);
 		}
