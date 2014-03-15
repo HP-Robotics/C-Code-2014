@@ -160,30 +160,30 @@ RobotDemo::RobotDemo(void):
 			ShooterUpdate();
 			
 			//DRIVE CODE
-			if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, full power forwards
+			if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, half power forwards
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(-1,-1,0);
-					FrontMotors.TankDrive(-1,-1,0);
+					BackMotors.TankDrive(-.5,-.5,0);
+					FrontMotors.TankDrive(-.5,-.5,0);
 				}
 				else
 				{
-					BackMotors.TankDrive(1,1,0);
-					FrontMotors.TankDrive(1,1,0);
+					BackMotors.TankDrive(.5,.5,0);
+					FrontMotors.TankDrive(.5,.5,0);
 				}
 			}
-			else if (gamepad.GetRawAxis(6) == -1) //If the dpad arrow down is pushed, full power backwards
+			else if (gamepad.GetRawAxis(6) == -1) //If the dpad arrow down is pushed, half power backwards
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(1,1,0);
-					FrontMotors.TankDrive(1,1,0);
+					BackMotors.TankDrive(.5,.5,0);
+					FrontMotors.TankDrive(.5,.5,0);
 				}
 				else
 				{
-					BackMotors.TankDrive(-1,-1,0);
-					FrontMotors.TankDrive(-1,-1,0);
+					BackMotors.TankDrive(-.5,-.5,0);
+					FrontMotors.TankDrive(-.5,-.5,0);
 				}
 			}
 			else if (fabs(averageSpeed) <= 0.8) //Regular speed control if the average of both sticks is less than .8
