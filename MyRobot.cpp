@@ -22,7 +22,8 @@ RobotDemo::RobotDemo(void):
 	readytoshoot(false),
 	lastTime(0),
 	lastDistance(0),
-	speed(0)
+	speed(0),
+	distanceBufferPosition(0)
 {
 	
 	upLoader.Set(true);
@@ -31,6 +32,21 @@ RobotDemo::RobotDemo(void):
 	rightWheels.Start();
 	BackMotors.SetExpiration(0.1);
 	FrontMotors.SetExpiration(0.1);
+	for(int i = 0; i < DISTANCEBUFFERSIZE; i++)
+	{
+		distanceBuffer[(distanceBufferPosition % 10)] = 0;
+	}
+}
+
+
+double RobotDemo::GetBufferedDistance()
+{
+	double sum = 0;
+	for(int i = 0; i < DISTANCEBUFFERSIZE; i++)
+	{
+		sum += distanceBuffer[i];
+	}
+	return sum / DISTANCEBUFFERSIZE;
 }
 	
 	
@@ -48,25 +64,36 @@ RobotDemo::RobotDemo(void):
 		bool wasReverseButtonPressed = false;
 		bool wasShootButtonPressed = false;
 		bool slowMode = false;
-		bool reverseMode = false;
+		bool reverseMode = true;
 		while (IsOperatorControl() && IsEnabled())
 		{
+#if false
+			//DISTANCEBUFFER UPDATE
+			distanceBuffer[(distanceBufferPosition++ % DISTANCEBUFFERSIZE)] = GetDistanceInStupidInches(sonicSensor);
+			
+			
 			//SPEED CALCULATION
-			double _dist = GetDistanceInStupidInches(sonicSensor);
+			double _dist = GetBufferedDistance();
 			double _time = totalTimer.Get();
-			if((_time - lastTime) > 0){
-				speed = (_dist - lastDistance) / (_time - lastTime);
+			if((_time - lastTime) > 0.3){
+				speed = (lastDistance - _dist) / (_time - lastTime);
+				printf("%f = (%f - %f) / (%f - %f)\n", speed, _dist, lastDistance, _time, lastTime);
+				lastTime = _time;
+				lastDistance = _dist;
 			}
+#endif	
+			
+			
 			
 			if(!reverseMode)
 			{
-				leftStickSpeed = -gamepad.GetRawAxis(2);
-				rightStickSpeed = -gamepad.GetRawAxis(4);
+				leftStickSpeed = gamepad.GetRawAxis(4);
+				rightStickSpeed = gamepad.GetRawAxis(2);
 			}
 			if (reverseMode)
 			{
-				leftStickSpeed = gamepad.GetRawAxis(4);
-				rightStickSpeed = gamepad.GetRawAxis(2);
+				leftStickSpeed = -gamepad.GetRawAxis(2);
+				rightStickSpeed = -gamepad.GetRawAxis(4);
 			}
 			
 			if (slowMode)
@@ -198,7 +225,8 @@ RobotDemo::RobotDemo(void):
 				FrontMotors.TankDrive(averageSpeed, averageSpeed, 0);
 			}
 			
-			printf("%f %f\n", GetDistanceInStupidInches(sonicSensor), speed);
+			//printf("%f - %f (%f)\n", speed, GetDistanceInStupidInches(sonicSensor), sonicSensor.GetVoltage());
+			printf("%d\n", pi.Get());
 			
 			Wait(0.005);
 		}

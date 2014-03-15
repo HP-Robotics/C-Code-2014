@@ -5,13 +5,16 @@
 #include "SmartDashboard/SmartDashboard.h"
 #include "math.h"
 
+using namespace std;
+
 
 #define SHOOTERSPEED -.8f
-#define RANGEINSTUPIDINCHES 72
+#define RANGEINSTUPIDINCHES 90
 #define RANGETOLERANCEINSTUPIDINCHES 4
-#define AUTONOMOUSBACKUPTIME 2
-#define AUTONOMOUSMINTIME .5
-#define AUTONOMOUSMAXTIME 3
+#define AUTONOMOUSBACKUPTIME 3
+#define AUTONOMOUSMINTIME 1
+#define AUTONOMOUSMAXTIME 5
+#define DISTANCEBUFFERSIZE 10
 
 inline bool IsSensorWorking(AnalogChannel& ultrasonic)
 {
@@ -64,7 +67,8 @@ class RobotDemo : public SimpleRobot
 	double lastTime;
 	double lastDistance;
 	double speed;
-
+	double distanceBuffer[DISTANCEBUFFERSIZE];
+	int distanceBufferPosition;
 public:
 	
 	RobotDemo(void);
@@ -73,6 +77,9 @@ public:
 	void ShootOverride();
 	void Autonomous();
 	void OperatorControl();
+	
+private:
+	double GetBufferedDistance();
 };
 
 #endif

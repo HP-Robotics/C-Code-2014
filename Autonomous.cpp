@@ -30,8 +30,8 @@ void RobotDemo::Autonomous(void)
 				printf("Maxed out\n");
 				break;
 			}
-			FrontMotors.TankDrive(1, 1, 0);
-			BackMotors.TankDrive(1, 1, 0);
+			FrontMotors.TankDrive(.5, .47, 0);
+			BackMotors.TankDrive(.5, .47, 0);
 			Wait(0.01);
 		}
 	}
@@ -50,8 +50,8 @@ void RobotDemo::Autonomous(void)
 	}
 	
 	//brake
-	FrontMotors.TankDrive(-1, -1, 0);
-	BackMotors.TankDrive(-1, -1, 0);
+	FrontMotors.TankDrive(-.15, -.15, 0);
+	BackMotors.TankDrive(-.15, -.15, 0);
 	Wait(0.3);
 	
 	FrontMotors.TankDrive(0.0, 0.0, 0);
