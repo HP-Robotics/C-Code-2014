@@ -21,7 +21,7 @@ void RobotDemo::ShooterUpdate()
 			{
 				//firing
 				//printf("Firing...\n");
-				if(!shooterLimit.Get() || shooterTimer.Get() > 1)
+				if(!shooterLimit.Get() || shooterTimer.Get() > 0.8)
 				{
 					//limit off or safety timer
 					readytoshoot = false;
@@ -33,7 +33,7 @@ void RobotDemo::ShooterUpdate()
 			{
 				//printf("Reloading...\n");
 				//reloading - same thing
-				if(shooterLimit.Get() || shooterTimer.Get() > 3)
+				if(shooterLimit.Get() || shooterTimer.Get() > 2)
 				{
 					//limit on or timer
 					readytoshoot = shooterLimit.Get();
@@ -55,7 +55,7 @@ void RobotDemo::ShootSafe()
 	double range = RANGEINSTUPIDINCHES + speed * .57 - speed * speed * .0033;
 	
 	double dist = GetDistanceInStupidInches(sonicSensor);
-	if(dist > range - RANGETOLERANCEINSTUPIDINCHES && dist < range + RANGETOLERANCEINSTUPIDINCHES)
+	if(dist > (range - RANGETOLERANCEINSTUPIDINCHES) && dist < (range + RANGETOLERANCEINSTUPIDINCHES))
 		ShootOverride();
 }
 
