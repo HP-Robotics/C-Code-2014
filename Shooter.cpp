@@ -21,7 +21,7 @@ void RobotDemo::ShooterUpdate()
 			{
 				//firing
 				//printf("Firing...\n");
-				if(!shooterLimit.Get() || shooterTimer.Get() > 0.8)
+				if(!shooterLimit.Get() || shooterTimer.Get() > 1)
 				{
 					//limit off or safety timer
 					readytoshoot = false;
@@ -33,7 +33,7 @@ void RobotDemo::ShooterUpdate()
 			{
 				//printf("Reloading...\n");
 				//reloading - same thing
-				if(shooterLimit.Get() || shooterTimer.Get() > 2)
+				if(shooterLimit.Get() || shooterTimer.Get() > 3)
 				{
 					//limit on or timer
 					readytoshoot = shooterLimit.Get();
