@@ -55,7 +55,7 @@ void RobotDemo::ShootSafe()
 	double range = RANGEINSTUPIDINCHES + speed * .57 - speed * speed * .0033;
 	
 	double dist = GetDistanceInStupidInches(sonicSensor);
-	if(dist > range - RANGETOLERANCEINSTUPIDINCHES && dist < range + RANGETOLERANCEINSTUPIDINCHES)
+	if(dist > (range - RANGETOLERANCEINSTUPIDINCHES) && dist < (range + RANGETOLERANCEINSTUPIDINCHES))
 		ShootOverride();
 }
 

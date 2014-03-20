@@ -34,7 +34,7 @@ RobotDemo::RobotDemo(void):
 	FrontMotors.SetExpiration(0.1);
 	for(int i = 0; i < DISTANCEBUFFERSIZE; i++)
 	{
-		distanceBuffer[(distanceBufferPosition % 10)] = 0;
+		distanceBuffer[(distanceBufferPosition % DISTANCEBUFFERSIZE)] = 0;
 	}
 }
 
