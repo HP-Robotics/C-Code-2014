@@ -1,5 +1,7 @@
 #include "MyRobot.h"
 
+#define AUTONOMOUSTRIGGERRANGE 100
+
 void RobotDemo::Autonomous(void)
 {
 	//setup
@@ -16,22 +18,45 @@ void RobotDemo::Autonomous(void)
 	autonomousTimer.Reset();
 	autonomousTimer.Start();
 	
-	//drive up to shooting range
+	//wait 5s or pi signal
+	printf("Waiting for hot signal\n");
+	while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() < 5 && pi.Get())
+	{
+		//digital input is pulled high by default, low means hot
+		Wait(0.01);
+	}
+	
+	
+	
+	//drive up towards shooting range
 	if(IsSensorWorking(sonicSensor)){
 		while(IsAutonomous() && IsEnabled())
 		{
-			if(GetDistanceInStupidInches(sonicSensor) <= RANGEINSTUPIDINCHES && autonomousTimer.Get() >= AUTONOMOUSMINTIME)
+			if(GetDistanceInStupidInches(sonicSensor) <= AUTONOMOUSTRIGGERRANGE)
 			{
-				printf("In range (I guess) %f\n", GetDistanceInStupidInches(sonicSensor));
-				goingtoshoot = true;
-				break;
+				if(autonomousTimer.Get() >= AUTONOMOUSMINTIME)
+				{
+					printf("In range, shooting\n");
+					ShootOverride();
+					//wait before braking
+					Wait(.4);
+					break;
+				}
+				else{
+					printf("Early trigger\n");
+					//something's wrong, too early, don't shoot
+					break;
+				}
+				
 			}
 			if(autonomousTimer.Get() >= AUTONOMOUSMAXTIME){
 				printf("Maxed out\n");
 				break;
 			}
-			FrontMotors.TankDrive(.5, .47, 0);
-			BackMotors.TankDrive(.5, .47, 0);
+			
+			
+			FrontMotors.TankDrive(.8, .8, 0);
+			BackMotors.TankDrive(.8, .8, 0);
 			Wait(0.01);
 		}
 	}
@@ -43,10 +68,12 @@ void RobotDemo::Autonomous(void)
 		goingtoshoot = true; //we always get there "in time"
 		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= AUTONOMOUSBACKUPTIME)
 		{
-			FrontMotors.TankDrive(1, 1, 0);
-			BackMotors.TankDrive(1, 1, 0);
+			FrontMotors.TankDrive(.8, .8, 0);
+			BackMotors.TankDrive(.8, .8, 0);
 			Wait(0.01);
 		}
+		ShootOverride();
+		Wait(.4);
 	}
 	
 	//brake
@@ -63,12 +90,7 @@ void RobotDemo::Autonomous(void)
 		//wait to give the pi opportunity to get a real measurement
 		Wait(1);
 		
-		printf("Waiting for hot signal\n");
-		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() < 5 && pi.Get())
-		{
-			//digital input is pulled high by default, low means hot
-			Wait(0.01);
-		}
+		
 		
 		printf("Saw hot or 5 sec expired\n");
 		ShootOverride();

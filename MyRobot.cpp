@@ -67,9 +67,10 @@ double RobotDemo::GetBufferedDistance()
 		bool reverseMode = true;
 		while (IsOperatorControl() && IsEnabled())
 		{
-#if false
 			//DISTANCEBUFFER UPDATE
-			distanceBuffer[(distanceBufferPosition++ % DISTANCEBUFFERSIZE)] = GetDistanceInStupidInches(sonicSensor);
+			double distance = GetDistanceInStupidInches(sonicSensor);
+			if(distance < 250)
+				distanceBuffer[(distanceBufferPosition++ % DISTANCEBUFFERSIZE)] = GetDistanceInStupidInches(sonicSensor);
 			
 			
 			//SPEED CALCULATION
@@ -81,7 +82,6 @@ double RobotDemo::GetBufferedDistance()
 				lastTime = _time;
 				lastDistance = _dist;
 			}
-#endif	
 			
 			
 			
@@ -226,7 +226,7 @@ double RobotDemo::GetBufferedDistance()
 			}
 			
 			//printf("%f - %f (%f)\n", speed, GetDistanceInStupidInches(sonicSensor), sonicSensor.GetVoltage());
-			printf("%d\n", pi.Get());
+			printf("%f\n", speed);
 			
 			Wait(0.005);
 		}
