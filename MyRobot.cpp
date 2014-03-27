@@ -1,5 +1,6 @@
 #include "MyRobot.h"
 
+
 RobotDemo::RobotDemo(void):
 	BackMotors(1, 3),
 	FrontMotors(2, 4),
@@ -23,7 +24,8 @@ RobotDemo::RobotDemo(void):
 	lastTime(0),
 	lastDistance(0),
 	speed(0),
-	distanceBufferPosition(0)
+	distanceBufferPosition(0),
+	speedCategory(SPEED_ZERO)
 {
 	
 	upLoader.Set(true);
@@ -34,7 +36,7 @@ RobotDemo::RobotDemo(void):
 	FrontMotors.SetExpiration(0.1);
 	for(int i = 0; i < DISTANCEBUFFERSIZE; i++)
 	{
-		distanceBuffer[(distanceBufferPosition % DISTANCEBUFFERSIZE)] = 0;
+		distanceBuffer[i] = 0;
 	}
 }
 
@@ -68,11 +70,11 @@ double RobotDemo::GetBufferedDistance()
 		while (IsOperatorControl() && IsEnabled())
 		{
 			//DISTANCEBUFFER UPDATE
-			double distance = GetDistanceInStupidInches(sonicSensor);
+			double distance = GetDistance(sonicSensor);
 			if(distance < 250)
-				distanceBuffer[(distanceBufferPosition++ % DISTANCEBUFFERSIZE)] = GetDistanceInStupidInches(sonicSensor);
+				distanceBuffer[(distanceBufferPosition++ % DISTANCEBUFFERSIZE)] = GetDistance(sonicSensor);
 			
-			
+#ifdef ZERO		
 			//SPEED CALCULATION
 			double _dist = GetBufferedDistance();
 			double _time = totalTimer.Get();
@@ -82,7 +84,7 @@ double RobotDemo::GetBufferedDistance()
 				lastTime = _time;
 				lastDistance = _dist;
 			}
-			
+#endif
 			
 			
 			if(!reverseMode)
@@ -106,7 +108,7 @@ double RobotDemo::GetBufferedDistance()
 			
 			
 			//SMART DASHBOARD OUTPUT
-			SmartDashboard::PutNumber("distance",GetDistanceInStupidInches(sonicSensor));
+			SmartDashboard::PutNumber("distance",GetBufferedDistance());
 			SmartDashboard::PutBoolean("nonslowmode", !slowMode);
 			SmartDashboard::PutBoolean("nonreversemode", !reverseMode);
 			
@@ -160,7 +162,6 @@ double RobotDemo::GetBufferedDistance()
 			{
 				if(!wasShootButtonPressed)
 					ShootSafe();
-				wasShootButtonPressed = true;
 			}
 			else if(gamepad.GetRawButton(8))
 			{
@@ -187,46 +188,62 @@ double RobotDemo::GetBufferedDistance()
 			ShooterUpdate();
 			
 			//DRIVE CODE
+			
+			//default is custom, will change if not
+			speedCategory = SPEED_CUSTOM;
+			
 			if (gamepad.GetRawAxis(6) == 1) //If the dpad arrow up is pushed, half power forwards
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(-.5,-.5,0);
-					FrontMotors.TankDrive(-.5,-.5,0);
+					BackMotors.TankDrive(-.51,-.49,0);
+					FrontMotors.TankDrive(-.51,-.49,0);
+					speedCategory = SPEED_BACKHALF;
 				}
 				else
 				{
-					BackMotors.TankDrive(.5,.5,0);
-					FrontMotors.TankDrive(.5,.5,0);
+					BackMotors.TankDrive(.51,.49,0);
+					FrontMotors.TankDrive(.51,.49,0);
+					speedCategory = SPEED_HALF;
+					printf("asd1\n");
 				}
 			}
 			else if (gamepad.GetRawAxis(6) == -1) //If the dpad arrow down is pushed, half power backwards
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(.5,.5,0);
-					FrontMotors.TankDrive(.5,.5,0);
+					BackMotors.TankDrive(.51,.49,0);
+					FrontMotors.TankDrive(.51,.49,0);
+					speedCategory = SPEED_HALF;
 				}
 				else
 				{
-					BackMotors.TankDrive(-.5,-.5,0);
-					FrontMotors.TankDrive(-.5,-.5,0);
+					BackMotors.TankDrive(-.51,-.49,0);
+					FrontMotors.TankDrive(-.51,-.49,0);
+					speedCategory = SPEED_BACKHALF;
 				}
 			}
-			else if (fabs(averageSpeed) <= 0.8) //Regular speed control if the average of both sticks is less than .8
+			else if (fabs(averageSpeed) <= 0.9) //Regular speed control if the average of both sticks is less than .8
 			{
 				BackMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
 				FrontMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
+				if(fabs(averageSpeed) <= .1)
+					speedCategory = SPEED_ZERO;
 				//printf("left %f rigth %f\n", leftStickSpeed, rightStickSpeed);
 			}
 			else //Average speed stabilizer if average of both sticks is greater than .8
 			{
 				BackMotors.TankDrive(averageSpeed, averageSpeed, 0);
 				FrontMotors.TankDrive(averageSpeed, averageSpeed, 0);
+				if(reverseMode)
+					speedCategory = SPEED_FULL;
+				else
+					speedCategory = SPEED_BACKFULL;
 			}
 			
-			//printf("%f - %f (%f)\n", speed, GetDistanceInStupidInches(sonicSensor), sonicSensor.GetVoltage());
-			printf("%f\n", speed);
+			PrintSpeed(speedCategory);
+			//printf("%f - %f (%f)\n", speed, GetDistance(sonicSensor), sonicSensor.GetVoltage());
+			
 			
 			Wait(0.005);
 		}

@@ -32,14 +32,12 @@ void RobotDemo::Autonomous(void)
 	if(IsSensorWorking(sonicSensor)){
 		while(IsAutonomous() && IsEnabled())
 		{
-			if(GetDistanceInStupidInches(sonicSensor) <= AUTONOMOUSTRIGGERRANGE)
+			if(GetDistance(sonicSensor) <= AUTONOMOUSTRIGGERRANGE)
 			{
 				if(autonomousTimer.Get() >= AUTONOMOUSMINTIME)
 				{
 					printf("In range, shooting\n");
-					ShootOverride();
-					//wait before braking
-					Wait(.4);
+					goingtoshoot = true;
 					break;
 				}
 				else{
@@ -72,9 +70,20 @@ void RobotDemo::Autonomous(void)
 			BackMotors.TankDrive(.8, .8, 0);
 			Wait(0.01);
 		}
-		ShootOverride();
-		Wait(.4);
 	}
+	
+	if(goingtoshoot)
+	{
+		ShootOverride();
+		double time = autonomousTimer.Get();
+		while(autonomousTimer.Get() < time + .4)
+		{
+			printf("ShooterUpdaate()\n");
+			ShooterUpdate();
+			Wait(0.01);
+		}
+	}
+	
 	
 	//brake
 	FrontMotors.TankDrive(-.15, -.15, 0);
@@ -83,23 +92,6 @@ void RobotDemo::Autonomous(void)
 	
 	FrontMotors.TankDrive(0.0, 0.0, 0);
 	BackMotors.TankDrive(0.0, 0.0, 0);
-	
-	//if we didn't get there in time we are most likely not in the right position, so we're not going to shoot
-	if(goingtoshoot)
-	{
-		//wait to give the pi opportunity to get a real measurement
-		Wait(1);
-		
-		
-		
-		printf("Saw hot or 5 sec expired\n");
-		ShootOverride();
-		
-		while(IsAutonomous() && IsEnabled()){
-			ShooterUpdate();
-			Wait(0.01);
-		}
-	}
 	
 	autonomousTimer.Stop();
 }

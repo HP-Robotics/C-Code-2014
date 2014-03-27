@@ -4,31 +4,60 @@
 #include "WPILib.h"
 #include "SmartDashboard/SmartDashboard.h"
 #include "math.h"
+#include "Speed.h"
 
 using namespace std;
 
 
 #define SHOOTERSPEED -.8f
-#define RANGEINSTUPIDINCHES 76
-#define RANGETOLERANCEINSTUPIDINCHES 4
+#define RANGE 63
+#define RANGEHALFSPEED 100
+#define RANGEFULLSPEED 180
+#define RANGEBACKHALFSPEED 36
+#define RANGETOLERANCE 8
 #define AUTONOMOUSBACKUPTIME 3
 #define AUTONOMOUSMINTIME 1
 #define AUTONOMOUSMAXTIME 5
 #define DISTANCEBUFFERSIZE 10
+
+inline void PrintSpeed(SpeedCategory speedCategory)
+{
+	switch(speedCategory)
+	{
+	case SPEED_ZERO:
+		printf("SPEED_ZERO\n");
+		break;
+	case SPEED_HALF:
+		printf("SPEED_HALF\n");
+		break;
+	case SPEED_FULL:
+		printf("SPEED_FULL\n");
+		break;
+	case SPEED_BACKHALF:
+		printf("SPEED_BACKHALF\n");
+		break;
+	case SPEED_BACKFULL:
+		printf("SPEED_BACKFULL\n");
+		break;
+	default:
+		printf("SPEED_CUSTOM\n");
+		break;
+	}
+}
 
 inline bool IsSensorWorking(AnalogChannel& ultrasonic)
 {
 	return ultrasonic.GetVoltage() > 0.02;
 }
 
-inline float GetDistanceInStupidInches(AnalogChannel& ultrasonic)
+inline float GetDistance(AnalogChannel& ultrasonic)
 {
 	return ultrasonic.GetVoltage()*80.14 + 1.6456;
 }
 
 inline float GetDistanceInCm(AnalogChannel& ultrasonic)
 {
-	return GetDistanceInStupidInches(ultrasonic) * 2.54f;
+	return GetDistance(ultrasonic) * 2.54f;
 }
 
 inline double avg (double a, double b)
@@ -69,6 +98,7 @@ class RobotDemo : public SimpleRobot
 	double speed;
 	double distanceBuffer[DISTANCEBUFFERSIZE];
 	int distanceBufferPosition;
+	SpeedCategory speedCategory;
 public:
 	
 	RobotDemo(void);
