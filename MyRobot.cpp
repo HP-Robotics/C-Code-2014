@@ -32,8 +32,9 @@ RobotDemo::RobotDemo(void):
 	downLoader.Set(false);
 	leftWheels.Start();
 	rightWheels.Start();
-	BackMotors.SetExpiration(0.1);
-	FrontMotors.SetExpiration(0.1);
+	BackMotors.SetExpiration(0.5);
+	FrontMotors.SetExpiration(0.5);
+	shooter.SetExpiration(0.5);
 	for(int i = 0; i < DISTANCEBUFFERSIZE; i++)
 	{
 		distanceBuffer[i] = 0;
