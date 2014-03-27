@@ -179,8 +179,12 @@ double RobotDemo::GetBufferedDistance()
 			
 			if (gamepad.GetRawButton(6)) //If bringDown or fire pressed, turn the kicker motor
 			{
-				if(!wasShootButtonPressed)
-					ShootSafe();
+				if(!wasShootButtonPressed){
+					bool ret = ShootSafe();
+					if(ret)
+						wasShootButtonPressed = true; //if we shot, then disable further interaction until keyup
+				}
+				
 			}
 			else if(gamepad.GetRawButton(8))
 			{

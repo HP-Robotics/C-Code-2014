@@ -119,7 +119,7 @@ public:
 	
 	RobotDemo(void);
 	void ShooterUpdate();
-	void ShootSafe();
+	bool ShootSafe(); //true if shot initiated
 	void ShootOverride();
 
 	void Autonomous();
