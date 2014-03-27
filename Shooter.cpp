@@ -54,10 +54,10 @@ bool RobotDemo::ShootSafe()
 	}
 	
 	
-	/*double range = RANGE + speed * .57 - speed * speed * .0033;
+	/*double range = table->GetNumber("RANGE") + speed * .57 - speed * speed * .0033;
 	
 	double dist = GetDistance(sonicSensor);
-	if(dist > (range - RANGETOLERANCE) && dist < (range + RANGETOLERANCE))
+	if(dist > (range - table->GetNumber("RANGETOLERANCE")) && dist < (range + table->GetNumber("RANGETOLERANCE")))
 		ShootOverride();*/
 	
 	double optimalrange = 0;
@@ -65,16 +65,16 @@ bool RobotDemo::ShootSafe()
 	switch(speedCategory)
 	{
 	case SPEED_BACKHALF:
-		optimalrange = RANGEBACKHALFSPEED;
+		optimalrange = table->GetNumber("RANGEBACKHALFSPEED");
 		break;
 	case SPEED_HALF:
-		optimalrange = RANGEHALFSPEED;
+		optimalrange = table->GetNumber("RANGEHALFSPEED");
 		break;
 	case SPEED_FULL:
-		optimalrange = RANGEFULLSPEED;
+		optimalrange = table->GetNumber("RANGEFULLSPEED");
 		break;
 	case SPEED_ZERO:
-		optimalrange = RANGE;
+		optimalrange = table->GetNumber("RANGE");
 		break;
 	default:
 		optimalrange = 0;
@@ -82,7 +82,7 @@ bool RobotDemo::ShootSafe()
 	}
 	
 	double currentrange = GetBufferedDistance();
-	if(currentrange < (optimalrange + RANGETOLERANCE) && currentrange > (optimalrange - RANGETOLERANCE))
+	if(currentrange < (optimalrange + table->GetNumber("RANGETOLERANCE")) && currentrange > (optimalrange - table->GetNumber("RANGETOLERANCE")))
 	{
 		ShootOverride();
 		return true;
