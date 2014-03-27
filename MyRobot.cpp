@@ -257,7 +257,7 @@ double RobotDemo::GetBufferedDistance()
 					speedCategory = SPEED_BACKFULL;
 			}
 			
-			PrintSpeed(speedCategory);
+			//PrintSpeed(speedCategory);
 			//printf("%f - %f (%f)\n", speed, GetDistance(sonicSensor), sonicSensor.GetVoltage());
 			
 			//printf("%u", comp.GetPressureSwitchValue(), comp.);
