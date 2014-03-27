@@ -25,16 +25,17 @@ void RobotDemo::Autonomous(void)
 		//digital input is pulled high by default, low means hot
 		Wait(0.01);
 	}
+	printf("Got signal or reached 5s\n");
 	
 	
-	
+	double drivestarttime = autonomousTimer.Get();
 	//drive up towards shooting range
 	if(IsSensorWorking(sonicSensor)){
 		while(IsAutonomous() && IsEnabled())
 		{
 			if(GetDistance(sonicSensor) <= AUTONOMOUSTRIGGERRANGE)
 			{
-				if(autonomousTimer.Get() >= AUTONOMOUSMINTIME)
+				if(autonomousTimer.Get() >= drivestarttime + AUTONOMOUSMINTIME)
 				{
 					printf("In range, shooting\n");
 					goingtoshoot = true;
@@ -47,7 +48,7 @@ void RobotDemo::Autonomous(void)
 				}
 				
 			}
-			if(autonomousTimer.Get() >= AUTONOMOUSMAXTIME){
+			if(autonomousTimer.Get() >= drivestarttime + AUTONOMOUSMAXTIME){
 				printf("Maxed out\n");
 				break;
 			}
@@ -64,7 +65,7 @@ void RobotDemo::Autonomous(void)
 		//sensor's broken
 		//rely on the timer
 		goingtoshoot = true; //we always get there "in time"
-		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= AUTONOMOUSBACKUPTIME)
+		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= drivestarttime + AUTONOMOUSBACKUPTIME)
 		{
 			FrontMotors.TankDrive(AUTONOMOUSSPEED*DRIVECORRECTION, AUTONOMOUSSPEED*DRIVECORRECTION, false);
 			BackMotors.TankDrive(AUTONOMOUSSPEED*DRIVECORRECTION, AUTONOMOUSSPEED*DRIVECORRECTION, false);
@@ -74,11 +75,12 @@ void RobotDemo::Autonomous(void)
 	
 	if(goingtoshoot)
 	{
+		printf("Shooting\n");
 		ShootOverride();
 		double time = autonomousTimer.Get();
 		while(autonomousTimer.Get() < time + SHOTTIME)
 		{
-			printf("ShooterUpdaate()\n");
+			//printf("ShooterUpdaate()\n");
 			ShooterUpdate();
 			Wait(0.01);
 		}
@@ -87,10 +89,12 @@ void RobotDemo::Autonomous(void)
 	//to be sure (in case of the limitswitch braking or moving during auto), stop the chugga here
 	shooter.Set(0);
 	//brake
+	printf("Braking\n");
 	FrontMotors.TankDrive(AUTONOMOUSBRAKEPOWER, AUTONOMOUSBRAKEPOWER*DRIVECORRECTION, false);
 	BackMotors.TankDrive(AUTONOMOUSBRAKEPOWER, AUTONOMOUSBRAKEPOWER*DRIVECORRECTION, false);
 	Wait(AUTONOMOUSBRAKETIME);
 	
+	printf("Stopping\n");
 	FrontMotors.TankDrive(0.0, 0.0, false);
 	BackMotors.TankDrive(0.0, 0.0, false);
 	
