@@ -112,8 +112,10 @@ public:
 	void ShooterUpdate();
 	void ShootSafe();
 	void ShootOverride();
+
 	void Autonomous();
 	void OperatorControl();
+	void Test();
 	
 private:
 	double GetBufferedDistance();
