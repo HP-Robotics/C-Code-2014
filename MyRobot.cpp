@@ -197,14 +197,14 @@ double RobotDemo::GetBufferedDistance()
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(-.51,-.49,0);
-					FrontMotors.TankDrive(-.51,-.49,0);
+					BackMotors.TankDrive(-.50, -.50*DRIVECORRECTION, 0);
+					FrontMotors.TankDrive(-.50, -.50*DRIVECORRECTION, 0);
 					speedCategory = SPEED_BACKHALF;
 				}
 				else
 				{
-					BackMotors.TankDrive(.51,.49,0);
-					FrontMotors.TankDrive(.51,.49,0);
+					BackMotors.TankDrive(.50, .50*DRIVECORRECTION, 0);
+					FrontMotors.TankDrive(.50, .50*DRIVECORRECTION, 0);
 					speedCategory = SPEED_HALF;
 					printf("asd1\n");
 				}
@@ -213,14 +213,14 @@ double RobotDemo::GetBufferedDistance()
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(.51,.49,0);
-					FrontMotors.TankDrive(.51,.49,0);
+					BackMotors.TankDrive(.50, .50*DRIVECORRECTION, 0);
+					FrontMotors.TankDrive(.50, .50*DRIVECORRECTION, 0);
 					speedCategory = SPEED_HALF;
 				}
 				else
 				{
-					BackMotors.TankDrive(-.51,-.49,0);
-					FrontMotors.TankDrive(-.51,-.49,0);
+					BackMotors.TankDrive(-.50, -.50*DRIVECORRECTION, 0);
+					FrontMotors.TankDrive(-.50, -.50*DRIVECORRECTION, 0);
 					speedCategory = SPEED_BACKHALF;
 				}
 			}
@@ -232,10 +232,20 @@ double RobotDemo::GetBufferedDistance()
 					speedCategory = SPEED_ZERO;
 				//printf("left %f rigth %f\n", leftStickSpeed, rightStickSpeed);
 			}
-			else //Average speed stabilizer if average of both sticks is greater than .8
+			else //Average speed stabilizer if average of both sticks is greater than .9
 			{
-				BackMotors.TankDrive(averageSpeed, averageSpeed, 0);
-				FrontMotors.TankDrive(averageSpeed, averageSpeed, 0);
+				if(DRIVECORRECTION > 1)
+				{
+					//here we have to divide, otherwise we'll be capped at 1
+					BackMotors.TankDrive(averageSpeed/DRIVECORRECTION, averageSpeed, 0); 
+					FrontMotors.TankDrive(averageSpeed/DRIVECORRECTION, averageSpeed, 0);
+				}
+				else
+				{
+					BackMotors.TankDrive(averageSpeed, averageSpeed*DRIVECORRECTION, 0); 
+					FrontMotors.TankDrive(averageSpeed, averageSpeed*DRIVECORRECTION, 0);
+				}
+
 				if(reverseMode)
 					speedCategory = SPEED_FULL;
 				else
