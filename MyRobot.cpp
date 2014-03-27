@@ -197,14 +197,14 @@ double RobotDemo::GetBufferedDistance()
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(-.50, -.50*DRIVECORRECTION, 0);
-					FrontMotors.TankDrive(-.50, -.50*DRIVECORRECTION, 0);
+					BackMotors.TankDrive(-.50, -.50*DRIVECORRECTION, false);
+					FrontMotors.TankDrive(-.50, -.50*DRIVECORRECTION, false);
 					speedCategory = SPEED_BACKHALF;
 				}
 				else
 				{
-					BackMotors.TankDrive(.50, .50*DRIVECORRECTION, 0);
-					FrontMotors.TankDrive(.50, .50*DRIVECORRECTION, 0);
+					BackMotors.TankDrive(.50, .50*DRIVECORRECTION, false);
+					FrontMotors.TankDrive(.50, .50*DRIVECORRECTION, false);
 					speedCategory = SPEED_HALF;
 					printf("asd1\n");
 				}
@@ -213,21 +213,21 @@ double RobotDemo::GetBufferedDistance()
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(.50, .50*DRIVECORRECTION, 0);
-					FrontMotors.TankDrive(.50, .50*DRIVECORRECTION, 0);
+					BackMotors.TankDrive(.50, .50*DRIVECORRECTION, false);
+					FrontMotors.TankDrive(.50, .50*DRIVECORRECTION, false);
 					speedCategory = SPEED_HALF;
 				}
 				else
 				{
-					BackMotors.TankDrive(-.50, -.50*DRIVECORRECTION, 0);
-					FrontMotors.TankDrive(-.50, -.50*DRIVECORRECTION, 0);
+					BackMotors.TankDrive(-.50, -.50*DRIVECORRECTION, false);
+					FrontMotors.TankDrive(-.50, -.50*DRIVECORRECTION, false);
 					speedCategory = SPEED_BACKHALF;
 				}
 			}
 			else if (fabs(averageSpeed) <= 0.9) //Regular speed control if the average of both sticks is less than .8
 			{
-				BackMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
-				FrontMotors.TankDrive(leftStickSpeed, rightStickSpeed, 0);
+				BackMotors.TankDrive(leftStickSpeed, rightStickSpeed, false);
+				FrontMotors.TankDrive(leftStickSpeed, rightStickSpeed, false);
 				if(fabs(averageSpeed) <= .1)
 					speedCategory = SPEED_ZERO;
 				//printf("left %f rigth %f\n", leftStickSpeed, rightStickSpeed);
@@ -237,13 +237,13 @@ double RobotDemo::GetBufferedDistance()
 				if(DRIVECORRECTION > 1)
 				{
 					//here we have to divide, otherwise we'll be capped at 1
-					BackMotors.TankDrive(averageSpeed/DRIVECORRECTION, averageSpeed, 0); 
-					FrontMotors.TankDrive(averageSpeed/DRIVECORRECTION, averageSpeed, 0);
+					BackMotors.TankDrive(averageSpeed/DRIVECORRECTION, averageSpeed, false); 
+					FrontMotors.TankDrive(averageSpeed/DRIVECORRECTION, averageSpeed, false);
 				}
 				else
 				{
-					BackMotors.TankDrive(averageSpeed, averageSpeed*DRIVECORRECTION, 0); 
-					FrontMotors.TankDrive(averageSpeed, averageSpeed*DRIVECORRECTION, 0);
+					BackMotors.TankDrive(averageSpeed, averageSpeed*DRIVECORRECTION, false); 
+					FrontMotors.TankDrive(averageSpeed, averageSpeed*DRIVECORRECTION, false);
 				}
 
 				if(reverseMode)

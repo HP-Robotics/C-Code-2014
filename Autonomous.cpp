@@ -7,13 +7,13 @@ void RobotDemo::Autonomous(void)
 	//setup
 	
 	comp.Start();
-	readytoshoot = shooterLimit.Get();
+	readytoshoot = (bool)shooterLimit.Get();
 	bool goingtoshoot = false;
 	FrontMotors.SetSafetyEnabled(false);
 	BackMotors.SetSafetyEnabled(false);
 	shooter.SetSafetyEnabled(false);
-	FrontMotors.TankDrive(0.0, 0.0, 0);
-	BackMotors.TankDrive(0.0, 0.0, 0);
+	FrontMotors.TankDrive(0.0, 0.0, false);
+	BackMotors.TankDrive(0.0, 0.0, false);
 	shooter.Set(0,0);
 	autonomousTimer.Reset();
 	autonomousTimer.Start();
@@ -66,8 +66,8 @@ void RobotDemo::Autonomous(void)
 		goingtoshoot = true; //we always get there "in time"
 		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= AUTONOMOUSBACKUPTIME)
 		{
-			FrontMotors.TankDrive(.8*DRIVECORRECTION, .8*DRIVECORRECTION, 0);
-			BackMotors.TankDrive(.8*DRIVECORRECTION, .8*DRIVECORRECTION, 0);
+			FrontMotors.TankDrive(.8*DRIVECORRECTION, .8*DRIVECORRECTION, false);
+			BackMotors.TankDrive(.8*DRIVECORRECTION, .8*DRIVECORRECTION, false);
 			Wait(0.01);
 		}
 	}
@@ -87,12 +87,12 @@ void RobotDemo::Autonomous(void)
 	//to be sure (in case of the limitswitch braking or moving during auto), stop the chugga here
 	shooter.Set(0);
 	//brake
-	FrontMotors.TankDrive(-.15, -.15*DRIVECORRECTION, 0);
-	BackMotors.TankDrive(-.15, -.15*DRIVECORRECTION, 0);
+	FrontMotors.TankDrive(-.15, -.15*DRIVECORRECTION, false);
+	BackMotors.TankDrive(-.15, -.15*DRIVECORRECTION, false);
 	Wait(0.3);
 	
-	FrontMotors.TankDrive(0.0, 0.0, 0);
-	BackMotors.TankDrive(0.0, 0.0, 0);
+	FrontMotors.TankDrive(0.0, 0.0, false);
+	BackMotors.TankDrive(0.0, 0.0, false);
 	
 	autonomousTimer.Stop();
 }
