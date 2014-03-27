@@ -8,6 +8,7 @@
 
 #include "WPILib.h"
 #include "SmartDashboard/SmartDashboard.h"
+#include "networktables/NetworkTable.h"
 #include "math.h"
 #include "Speed.h"
 
@@ -74,6 +75,8 @@ inline double avg (double a, double b)
 
 class RobotDemo : public SimpleRobot
 {
+	NetworkTable* table;
+
 	RobotDrive BackMotors;
 	RobotDrive FrontMotors;
 	AnalogChannel sonicSensor;

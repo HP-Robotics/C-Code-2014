@@ -32,9 +32,9 @@ void RobotDemo::Autonomous(void)
 	if(IsSensorWorking(sonicSensor)){
 		while(IsAutonomous() && IsEnabled())
 		{
-			if(GetDistance(sonicSensor) <= AUTONOMOUSTRIGGERRANGE)
+			if(GetDistance(sonicSensor) <= table->GetNumber("AUTONOMOUSTRIGGERRANGE"))
 			{
-				if(autonomousTimer.Get() >= AUTONOMOUSMINTIME)
+				if(autonomousTimer.Get() >= table->GetNumber("AUTONOMOUSMINTIME"))
 				{
 					printf("In range, shooting\n");
 					goingtoshoot = true;
@@ -47,14 +47,14 @@ void RobotDemo::Autonomous(void)
 				}
 				
 			}
-			if(autonomousTimer.Get() >= AUTONOMOUSMAXTIME){
+			if(autonomousTimer.Get() >= table->GetNumber("AUTONOMOUSMAXTIME")){
 				printf("Maxed out\n");
 				break;
 			}
 			
 			
-			FrontMotors.TankDrive(.8, .8*DRIVECORRECTION, 0);
-			BackMotors.TankDrive(.8, .8*DRIVECORRECTION, 0);
+			FrontMotors.TankDrive(.8, .8*table->GetNumber("DRIVECORRECTION"), 0);
+			BackMotors.TankDrive(.8, .8*table->GetNumber("DRIVECORRECTION"), 0);
 			Wait(0.01);
 		}
 	}
@@ -64,10 +64,10 @@ void RobotDemo::Autonomous(void)
 		//sensor's broken
 		//rely on the timer
 		goingtoshoot = true; //we always get there "in time"
-		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= AUTONOMOUSBACKUPTIME)
+		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= table->GetNumber("AUTONOMOUSBACKUPTIME"))
 		{
-			FrontMotors.TankDrive(.8*DRIVECORRECTION, .8*DRIVECORRECTION, false);
-			BackMotors.TankDrive(.8*DRIVECORRECTION, .8*DRIVECORRECTION, false);
+			FrontMotors.TankDrive(.8*table->GetNumber("DRIVECORRECTION"), .8*table->GetNumber("DRIVECORRECTION"), false);
+			BackMotors.TankDrive(.8*table->GetNumber("DRIVECORRECTION"), .8*table->GetNumber("DRIVECORRECTION"), false);
 			Wait(0.01);
 		}
 	}
@@ -87,8 +87,8 @@ void RobotDemo::Autonomous(void)
 	//to be sure (in case of the limitswitch braking or moving during auto), stop the chugga here
 	shooter.Set(0);
 	//brake
-	FrontMotors.TankDrive(-.15, -.15*DRIVECORRECTION, false);
-	BackMotors.TankDrive(-.15, -.15*DRIVECORRECTION, false);
+	FrontMotors.TankDrive(-.15, -.15*table->GetNumber("DRIVECORRECTION"), false);
+	BackMotors.TankDrive(-.15, -.15*table->GetNumber("DRIVECORRECTION"), false);
 	Wait(0.3);
 	
 	FrontMotors.TankDrive(0.0, 0.0, false);

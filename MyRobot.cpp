@@ -39,6 +39,19 @@ RobotDemo::RobotDemo(void):
 	{
 		distanceBuffer[i] = 0;
 	}
+
+	//save the default values
+	table = NetworkTable::GetTable("calibrationtable");
+	table->PutNumber("DRIVECORRECTION", DRIVECORRECTION);
+	table->PutNumber("SHOOTERSPEED", SHOOTERSPEED);
+	table->PutNumber("RANGE", RANGE);
+	table->PutNumber("RANGEHALFSPEED", RANGEHALFSPEED);
+	table->PutNumber("RANGEFULLSPEED", RANGEFULLSPEED);
+	table->PutNumber("RANGEBACKHALFSPEED", RANGEBACKHALFSPEED);
+	table->PutNumber("RANGETOLERANCE", RANGETOLERANCE);
+	table->PutNumber("AUTONOMOUSBACKUPTIME", AUTONOMOUSBACKUPTIME);
+	table->PutNumber("AUTONOMOUSMINTIME", AUTONOMOUSMINTIME);
+	table->PutNumber("AUTONOMOUSMAXTIME", AUTONOMOUSMAXTIME);
 }
 
 
@@ -197,14 +210,14 @@ double RobotDemo::GetBufferedDistance()
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(-.50, -.50*DRIVECORRECTION, false);
-					FrontMotors.TankDrive(-.50, -.50*DRIVECORRECTION, false);
+					BackMotors.TankDrive(-.50, -.50*table->GetNumber("DRIVECORRECTION"), false);
+					FrontMotors.TankDrive(-.50, -.50*table->GetNumber("DRIVECORRECTION"), false);
 					speedCategory = SPEED_BACKHALF;
 				}
 				else
 				{
-					BackMotors.TankDrive(.50, .50*DRIVECORRECTION, false);
-					FrontMotors.TankDrive(.50, .50*DRIVECORRECTION, false);
+					BackMotors.TankDrive(.50, .50*table->GetNumber("DRIVECORRECTION"), false);
+					FrontMotors.TankDrive(.50, .50*table->GetNumber("DRIVECORRECTION"), false);
 					speedCategory = SPEED_HALF;
 					printf("asd1\n");
 				}
@@ -213,14 +226,14 @@ double RobotDemo::GetBufferedDistance()
 			{
 				if(reverseMode)
 				{
-					BackMotors.TankDrive(.50, .50*DRIVECORRECTION, false);
-					FrontMotors.TankDrive(.50, .50*DRIVECORRECTION, false);
+					BackMotors.TankDrive(.50, .50*table->GetNumber("DRIVECORRECTION"), false);
+					FrontMotors.TankDrive(.50, .50*table->GetNumber("DRIVECORRECTION"), false);
 					speedCategory = SPEED_HALF;
 				}
 				else
 				{
-					BackMotors.TankDrive(-.50, -.50*DRIVECORRECTION, false);
-					FrontMotors.TankDrive(-.50, -.50*DRIVECORRECTION, false);
+					BackMotors.TankDrive(-.50, -.50*table->GetNumber("DRIVECORRECTION"), false);
+					FrontMotors.TankDrive(-.50, -.50*table->GetNumber("DRIVECORRECTION"), false);
 					speedCategory = SPEED_BACKHALF;
 				}
 			}
@@ -234,16 +247,16 @@ double RobotDemo::GetBufferedDistance()
 			}
 			else //Average speed stabilizer if average of both sticks is greater than .9
 			{
-				if(DRIVECORRECTION > 1)
+				if(table->GetNumber("DRIVECORRECTION") > 1)
 				{
 					//here we have to divide, otherwise we'll be capped at 1
-					BackMotors.TankDrive(averageSpeed/DRIVECORRECTION, averageSpeed, false); 
-					FrontMotors.TankDrive(averageSpeed/DRIVECORRECTION, averageSpeed, false);
+					BackMotors.TankDrive(averageSpeed/table->GetNumber("DRIVECORRECTION"), averageSpeed, false); 
+					FrontMotors.TankDrive(averageSpeed/table->GetNumber("DRIVECORRECTION"), averageSpeed, false);
 				}
 				else
 				{
-					BackMotors.TankDrive(averageSpeed, averageSpeed*DRIVECORRECTION, false); 
-					FrontMotors.TankDrive(averageSpeed, averageSpeed*DRIVECORRECTION, false);
+					BackMotors.TankDrive(averageSpeed, averageSpeed*table->GetNumber("DRIVECORRECTION"), false); 
+					FrontMotors.TankDrive(averageSpeed, averageSpeed*table->GetNumber("DRIVECORRECTION"), false);
 				}
 
 				if(reverseMode)
