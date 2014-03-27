@@ -12,7 +12,7 @@ RobotDemo::RobotDemo(void):
 	leftWheels(leftEncA, leftEncB, false, Encoder::k4X),
 	rightWheels(rightEncA, rightEncB, false, Encoder::k4X),
 	gamepad(1),
-	comp(5,1),
+	comp(6,1),
 	upLoader(1),
 	downLoader(2),
 	shooter(5),
