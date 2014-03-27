@@ -20,6 +20,7 @@ void RobotDemo::Autonomous(void)
 	
 	//wait 5s or pi signal
 	printf("Waiting for hot signal\n");
+	Wait(AUTONOMOUSWAITTIME);
 	while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() < 5 && pi.Get())
 	{
 		//digital input is pulled high by default, low means hot
