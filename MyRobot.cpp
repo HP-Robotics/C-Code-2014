@@ -86,6 +86,7 @@ double RobotDemo::GetBufferedDistance()
 		bool wasShootButtonPressed = false;
 		bool slowMode = false;
 		bool reverseMode = true;
+		printf("comp error: %s\n", comp.GetError().GetMessage());
 		while (IsOperatorControl() && IsEnabled())
 		{
 			//DISTANCEBUFFER UPDATE
@@ -277,12 +278,18 @@ double RobotDemo::GetBufferedDistance()
 			//PrintSpeed(speedCategory);
 			//printf("%f - %f (%f)\n", speed, GetDistance(sonicSensor), sonicSensor.GetVoltage());
 			
+			//printf("%u", comp.GetPressureSwitchValue(), comp.);
 			
 			Wait(0.005);
 		}
 		
 		comp.Stop();
 		
+	}
+	
+	void RobotDemo::Disabled()
+	{
+		//printf("%u", comp.GetPressureSwitchValue());
 	}
 	
 	

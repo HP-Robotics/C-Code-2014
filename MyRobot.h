@@ -125,6 +125,7 @@ public:
 	void Autonomous();
 	void OperatorControl();
 	void Test();
+	virtual void Disabled();
 	
 private:
 	double GetBufferedDistance();
