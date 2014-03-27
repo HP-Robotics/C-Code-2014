@@ -17,6 +17,7 @@ using namespace std;
 #define DRIVECORRECTION 1
 
 #define SHOOTERSPEED -.8f
+#define SHOTTIME .6
 #define RANGE 63
 #define RANGEHALFSPEED 100
 #define RANGEFULLSPEED 180
@@ -25,6 +26,9 @@ using namespace std;
 #define AUTONOMOUSBACKUPTIME 3
 #define AUTONOMOUSMINTIME 1
 #define AUTONOMOUSMAXTIME 5
+#define AUTONOMOUSSPEED .8
+#define AUTONOMOUSBRAKEPOWER -.2
+#define AUTONOMOUSBRAKETIME .3
 #define DISTANCEBUFFERSIZE 10
 
 inline void PrintSpeed(SpeedCategory speedCategory)
