@@ -78,7 +78,7 @@ void RobotDemo::Autonomous(void)
 		printf("Shooting\n");
 		ShootOverride();
 		double time = autonomousTimer.Get();
-		while(autonomousTimer.Get() < time + SHOTTIME)
+		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() < time + SHOTTIME)
 		{
 			//printf("ShooterUpdaate()\n");
 			ShooterUpdate();
@@ -92,7 +92,8 @@ void RobotDemo::Autonomous(void)
 	printf("Braking\n");
 	FrontMotors.TankDrive(AUTONOMOUSBRAKEPOWER, AUTONOMOUSBRAKEPOWER*DRIVECORRECTION, false);
 	BackMotors.TankDrive(AUTONOMOUSBRAKEPOWER, AUTONOMOUSBRAKEPOWER*DRIVECORRECTION, false);
-	Wait(AUTONOMOUSBRAKETIME);
+	if (IsAutonomous() && IsEnabled())
+		Wait(AUTONOMOUSBRAKETIME);
 	
 	printf("Stopping\n");
 	FrontMotors.TankDrive(0.0, 0.0, false);
