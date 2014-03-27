@@ -26,7 +26,7 @@ void RobotDemo::Autonomous(void)
 		//digital input is pulled high by default, low means hot
 		Wait(0.01);
 	}
-	printf("Got signal or reached 5s; pi %u\n", (unsigned int) pi.Get());
+	printf("Got signal or reached 5s; current time %g; pi %u\n", autonomousTimer.Get(), (unsigned int) pi.Get());
 	
 	
 	double drivestarttime = autonomousTimer.Get();
@@ -38,8 +38,7 @@ void RobotDemo::Autonomous(void)
 			{
 				if(autonomousTimer.Get() >= drivestarttime + AUTONOMOUSMINTIME)
 				{
-					printf("In range, shooting\n");
-					goingtoshoot = true;
+					printf("In range, shooting at time %g\n", autonomousTimer.Get());
 					break;
 				}
 				else{
