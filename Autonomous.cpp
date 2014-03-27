@@ -84,7 +84,8 @@ void RobotDemo::Autonomous(void)
 		}
 	}
 	
-	
+	//to be sure (in case of the limitswitch braking or moving during auto), stop the chugga here
+	shooter.Set(0);
 	//brake
 	FrontMotors.TankDrive(-.15, -.15, 0);
 	BackMotors.TankDrive(-.15, -.15, 0);
