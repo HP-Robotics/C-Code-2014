@@ -46,10 +46,12 @@ void RobotDemo::ShooterUpdate()
 		shooter.Set(running ? SHOOTERSPEED : 0);
 	}
 }
-void RobotDemo::ShootSafe()
+bool RobotDemo::ShootSafe()
 {
-	if(!readytoshoot)
+	if(!readytoshoot){
 		ShootOverride();
+		return true;
+	}
 	
 	
 	/*double range = RANGE + speed * .57 - speed * speed * .0033;
@@ -83,11 +85,13 @@ void RobotDemo::ShootSafe()
 	if(currentrange < (optimalrange + RANGETOLERANCE) && currentrange > (optimalrange - RANGETOLERANCE))
 	{
 		ShootOverride();
+		return true;
 	}
 	else
 	{
 		printf("NOT - c: %g - o: %g", currentrange, optimalrange);
 		PrintSpeed(speedCategory);
+		return false;
 	}
 	
 }
