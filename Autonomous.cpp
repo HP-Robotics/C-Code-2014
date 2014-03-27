@@ -18,21 +18,23 @@ void RobotDemo::Autonomous(void)
 	
 	//wait 5s or pi signal
 	printf("Waiting for hot signal\n");
+	Wait(AUTONOMOUSWAITTIME);
 	while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() < 5 && pi.Get())
 	{
 		//digital input is pulled high by default, low means hot
 		Wait(0.01);
 	}
+	printf("Got signal or reached 5s\n");
 	
 	
-	
+	double drivestarttime = autonomousTimer.Get();
 	//drive up towards shooting range
 	if(IsSensorWorking(sonicSensor)){
 		while(IsAutonomous() && IsEnabled())
 		{
 			if(GetDistance(sonicSensor) <= table->GetNumber("AUTONOMOUSTRIGGERRANGE"))
 			{
-				if(autonomousTimer.Get() >= table->GetNumber("AUTONOMOUSMINTIME"))
+				if(autonomousTimer.Get() >= drivestarttime + table->GetNumber("AUTONOMOUSMINTIME"))
 				{
 					printf("In range, shooting\n");
 					goingtoshoot = true;
@@ -45,7 +47,7 @@ void RobotDemo::Autonomous(void)
 				}
 				
 			}
-			if(autonomousTimer.Get() >= table->GetNumber("AUTONOMOUSMAXTIME")){
+			if(autonomousTimer.Get() >= drivestarttime + table->GetNumber("AUTONOMOUSMAXTIME")){
 				printf("Maxed out\n");
 				break;
 			}
@@ -62,7 +64,7 @@ void RobotDemo::Autonomous(void)
 		//sensor's broken
 		//rely on the timer
 		goingtoshoot = true; //we always get there "in time"
-		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= table->GetNumber("AUTONOMOUSBACKUPTIME"))
+		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= drivestarttime + table->GetNumber("AUTONOMOUSBACKUPTIME"))
 		{
 			FrontMotors.TankDrive(table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), false);
 			BackMotors.TankDrive(table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), false);
@@ -72,11 +74,12 @@ void RobotDemo::Autonomous(void)
 	
 	if(goingtoshoot)
 	{
+		printf("Shooting\n");
 		ShootOverride();
 		double time = autonomousTimer.Get();
 		while(autonomousTimer.Get() < time + table->GetNumber("SHOTTIME"))
 		{
-			printf("ShooterUpdaate()\n");
+			//printf("ShooterUpdaate()\n");
 			ShooterUpdate();
 			Wait(0.01);
 		}
@@ -85,10 +88,12 @@ void RobotDemo::Autonomous(void)
 	//to be sure (in case of the limitswitch braking or moving during auto), stop the chugga here
 	shooter.Set(0);
 	//brake
+	printf("Braking\n");
 	FrontMotors.TankDrive(table->GetNumber("AUTONOMOUSBRAKEPOWER"), table->GetNumber("AUTONOMOUSBRAKEPOWER")*table->GetNumber("DRIVECORRECTION"), false);
 	BackMotors.TankDrive(table->GetNumber("AUTONOMOUSBRAKEPOWER"), table->GetNumber("AUTONOMOUSBRAKEPOWER")*table->GetNumber("DRIVECORRECTION"), false);
 	Wait(table->GetNumber("AUTONOMOUSBRAKETIME"));
 	
+	printf("Stopping\n");
 	FrontMotors.TankDrive(0.0, 0.0, false);
 	BackMotors.TankDrive(0.0, 0.0, false);
 	
