@@ -26,7 +26,7 @@ void RobotDemo::Autonomous(void)
 		//digital input is pulled high by default, low means hot
 		Wait(0.01);
 	}
-	printf("Got signal or reached 5s\n");
+	printf("Got signal or reached 5s; pi %u\n", (unsigned int) pi.Get());
 	
 	
 	double drivestarttime = autonomousTimer.Get();
