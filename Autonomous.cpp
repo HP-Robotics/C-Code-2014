@@ -66,8 +66,8 @@ void RobotDemo::Autonomous(void)
 		goingtoshoot = true; //we always get there "in time"
 		while(IsAutonomous() && IsEnabled() && autonomousTimer.Get() <= drivestarttime + table->GetNumber("AUTONOMOUSBACKUPTIME"))
 		{
-			FrontMotors.TankDrive(table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), false);
-			BackMotors.TankDrive(table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), false);
+			FrontMotors.TankDrive(table->GetNumber("AUTONOMOUSSPEED"), table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), false);
+			BackMotors.TankDrive(table->GetNumber("AUTONOMOUSSPEED"), table->GetNumber("AUTONOMOUSSPEED")*table->GetNumber("DRIVECORRECTION"), false);
 			Wait(0.01);
 		}
 	}
