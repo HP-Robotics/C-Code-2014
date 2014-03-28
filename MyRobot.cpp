@@ -4,7 +4,7 @@
 RobotDemo::RobotDemo(void):
 	BackMotors(1, 3),
 	FrontMotors(2, 4),
-	sonicSensor(1),
+	sonicSensor(6),
 	rightEncA(3),
 	rightEncB(4),
 	leftEncA(1),
