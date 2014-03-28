@@ -31,7 +31,7 @@ void RobotDemo::Autonomous(void)
 	
 	double drivestarttime = autonomousTimer.Get();
 	//drive up towards shooting range
-	if(IsSensorWorking(sonicSensor)){
+	if(false){ //we don't want to use the sensor in autonomous
 		while(IsAutonomous() && IsEnabled())
 		{
 			if(GetDistance(sonicSensor) <= AUTONOMOUSTRIGGERRANGE)
