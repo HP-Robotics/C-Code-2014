@@ -1,6 +1,6 @@
 #include "MyRobot.h"
 
-#define AUTONOMOUSTRIGGERRANGE 100
+#define AUTONOMOUSTRIGGERRANGE 111
 
 void RobotDemo::Autonomous(void)
 {
