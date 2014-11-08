@@ -14,7 +14,7 @@
 using namespace std;
 
 // The ratio of the power on the right side of the robot to the power on the left side, to keep it straight. 2 means the right side gets 2x more power
-#define DRIVECORRECTION 1.09
+#define DRIVECORRECTION 1.04
 
 #define SHOOTERSPEED -.8f
 #define SHOTTIME .6
